@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:18
+    container_name: erp_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 4568
+      POSTGRES_DB: erp_diplom
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+    networks:
+      - erp_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d erp_diplom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend1:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: erp_backend1
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:4568@erp_db:5432/erp_diplom
+    volumes:
+      - ./backend:/app/backend
+    networks:
+      - erp_network
+
+  backend2:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: erp_backend2
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:4568@erp_db:5432/erp_diplom
+    volumes:
+      - ./backend:/app/backend
+    networks:
+      - erp_network
+
+  nginx:
+    image: nginx:latest
+    container_name: erp_nginx
+    restart: always
+    depends_on:
+      - backend1
+      - backend2
+    ports:
+      - "8000:80"
+    networks:
+      - erp_network
+
+  backup:
+    image: alpine
+    container_name: erp_backup
+    restart: always
+    volumes:
+      - ./backups:/backups
+      - ./backup.sh:/backup.sh
+    networks:
+      - erp_network
+    entrypoint: ["/bin/sh", "/backup.sh"]
+
+networks:
+  erp_network:
+    driver: bridge
+
+volumes:
+  db_data:
