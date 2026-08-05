@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# -------------------------
+# 🔑 Додано для RIO-ERP
+backend/backend.log
+backend/venv/
+frontend_rio/venv/
+frontend_rio/venv_wsl/
+frontend_rio/__pycache__/
+backend/__pycache__/
