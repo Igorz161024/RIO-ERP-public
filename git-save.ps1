@@ -8,3 +8,5 @@ git pull origin main --allow-unrelated-histories --no-edit
 git pull public main --allow-unrelated-histories --no-edit
 git push origin main
 git push public main
+
+Write-Output "? Зміни збережено і відправлено у приватний та публічний репозиторії."

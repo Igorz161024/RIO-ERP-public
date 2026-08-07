@@ -1,20 +1,18 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:18
-    container_name: erp_db
+    container_name: rio_erp_db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 4568
       POSTGRES_DB: erp_diplom
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
-      - db_data:/var/lib/postgresql
+      - rio_db_data:/var/lib/postgresql
     networks:
-      - erp_network
+      - rio_erp_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d erp_diplom"]
       interval: 10s
@@ -25,60 +23,75 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: erp_backend1
+    container_name: rio_backend1
     restart: always
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:4568@erp_db:5432/erp_diplom
+      DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
     volumes:
       - ./backend:/app/backend
     networks:
-      - erp_network
+      - rio_erp_network
 
   backend2:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: erp_backend2
+    container_name: rio_backend2
     restart: always
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://postgres:4568@erp_db:5432/erp_diplom
+      DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
     volumes:
       - ./backend:/app/backend
     networks:
-      - erp_network
+      - rio_erp_network
 
   nginx:
     image: nginx:latest
-    container_name: erp_nginx
+    container_name: rio_nginx
     restart: always
     depends_on:
       - backend1
       - backend2
     ports:
-      - "8000:80"
+      - "8001:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
-      - erp_network
+      - rio_erp_network
 
-  backup:
+  rio_frontend:
+    build:
+      context: ./frontend_rio
+    container_name: rio_frontend
+    command: python main.py
+    volumes:
+      - ./frontend_rio:/app
+    networks:
+      - rio_erp_network
+    depends_on:
+      - backend1
+      - backend2
+
+  rio_backup:
     image: alpine
-    container_name: erp_backup
+    container_name: rio_backup
     restart: always
     volumes:
       - ./backups:/backups
       - ./backup.sh:/backup.sh
     networks:
-      - erp_network
+      - rio_erp_network
     entrypoint: ["/bin/sh", "/backup.sh"]
 
 networks:
-  erp_network:
+  rio_erp_network:
     driver: bridge
 
 volumes:
-  db_data:
+  rio_db_data:
