@@ -1,51 +1,50 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from backend.database import get_db
-from backend.models import journal
-from backend.schemas import JournalSchema, JournalCreate, JournalUpdate
-from backend.auth import get_current_user_role
+from fastapi import APIRouter, HTTPException
+from typing import List
+from backend.schemas.journal import JournalSchema, JournalCreate, JournalUpdate
 
-router = APIRouter(
-    prefix="/api/journal",
-    tags=["Journal"]
-)
+router = APIRouter()
 
-@router.get("/", response_model=list[JournalSchema])
-def read_journal(role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["accountant", "admin", "manager"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return db.query(journal.Journal).all()
+# Тимчасове сховище (замість БД)
+fake_db: List[dict] = [
+    {"id": 1, "date": "2026-05-21", "operation": "Test", "status": "ok", "amount": 100}
+]
 
+# GET: список записів
+@router.get("/", response_model=List[JournalSchema])
+def get_journal_entries():
+    return fake_db
+
+# GET: отримати запис за id
+@router.get("/{entry_id}", response_model=JournalSchema)
+def get_journal_entry(entry_id: int):
+    for entry in fake_db:
+        if entry["id"] == entry_id:
+            return entry
+    raise HTTPException(status_code=404, detail="Запис не знайдено")
+
+# POST: створення нового запису
 @router.post("/", response_model=JournalSchema)
-def create_journal(entry: JournalCreate, role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    new_entry = journal.Journal(**entry.dict())
-    db.add(new_entry)
-    db.commit()
-    db.refresh(new_entry)
+def create_journal_entry(entry: JournalCreate):
+    new_id = max([e["id"] for e in fake_db]) + 1 if fake_db else 1
+    new_entry = {"id": new_id, **entry.dict()}
+    fake_db.append(new_entry)
     return new_entry
 
+# PUT: оновлення запису (часткове)
 @router.put("/{entry_id}", response_model=JournalSchema)
-def update_journal(entry_id: int, entry: JournalUpdate, role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    db_entry = db.query(journal.Journal).filter(journal.Journal.id == entry_id).first()
-    if not db_entry:
-        raise HTTPException(status_code=404, detail="Запис не знайдено")
-    for key, value in entry.dict(exclude_unset=True).items():
-        setattr(db_entry, key, value)
-    db.commit()
-    db.refresh(db_entry)
-    return db_entry
+def update_journal_entry(entry_id: int, entry: JournalUpdate):
+    for idx, existing in enumerate(fake_db):
+        if existing["id"] == entry_id:
+            updated_entry = {**existing, **entry.dict(exclude_unset=True)}
+            fake_db[idx] = updated_entry
+            return updated_entry
+    raise HTTPException(status_code=404, detail="Запис не знайдено")
 
-@router.delete("/{entry_id}")
-def delete_journal(entry_id: int, role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    db_entry = db.query(journal.Journal).filter(journal.Journal.id == entry_id).first()
-    if not db_entry:
-        raise HTTPException(status_code=404, detail="Запис не знайдено")
-    db.delete(db_entry)
-    db.commit()
-    return {"detail": "Запис видалено"}
+# DELETE: видалення запису
+@router.delete("/{entry_id}", response_model=dict)
+def delete_journal_entry(entry_id: int):
+    for idx, existing in enumerate(fake_db):
+        if existing["id"] == entry_id:
+            fake_db.pop(idx)
+            return {"message": f"Запис {entry_id} видалено"}
+    raise HTTPException(status_code=404, detail="Запис не знайдено")

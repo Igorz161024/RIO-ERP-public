@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.database import get_db
-from backend.models import sales
-from backend.schemas import SaleSchema, SaleCreate, SaleUpdate
-from backend.auth import get_current_user_role
+from backend.models.sales import Sale
+from backend.schemas.sales import SaleSchema, SaleCreate, SaleUpdate
+from backend.auth import get_current_user
 
 router = APIRouter(
     prefix="/api/sales",
@@ -12,26 +12,20 @@ router = APIRouter(
 
 # --- CRUD для Sales ---
 @router.get("/", response_model=list[SaleSchema])
-def read_sales(role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["sales", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return db.query(sales.Sale).all()
+def read_sales(current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.query(Sale).all()
 
 @router.post("/", response_model=SaleSchema)
-def create_sale(entry: SaleCreate, role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["sales", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    new_entry = sales.Sale(**entry.dict())
+def create_sale(entry: SaleCreate, current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    new_entry = Sale(**entry.dict())
     db.add(new_entry)
     db.commit()
     db.refresh(new_entry)
     return new_entry
 
 @router.put("/{sale_id}", response_model=SaleSchema)
-def update_sale(sale_id: int, entry: SaleUpdate, role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["sales", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    db_entry = db.query(sales.Sale).filter(sales.Sale.id == sale_id).first()
+def update_sale(sale_id: int, entry: SaleUpdate, current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_entry = db.query(Sale).filter(Sale.id == sale_id).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Запис не знайдено")
     for key, value in entry.dict(exclude_unset=True).items():
@@ -41,10 +35,8 @@ def update_sale(sale_id: int, entry: SaleUpdate, role: str = Depends(get_current
     return db_entry
 
 @router.delete("/{sale_id}")
-def delete_sale(sale_id: int, role: str = Depends(get_current_user_role), db: Session = Depends(get_db)):
-    if role not in ["sales", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    db_entry = db.query(sales.Sale).filter(sales.Sale.id == sale_id).first()
+def delete_sale(sale_id: int, current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    db_entry = db.query(Sale).filter(Sale.id == sale_id).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Запис не знайдено")
     db.delete(db_entry)

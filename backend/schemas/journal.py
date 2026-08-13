@@ -21,4 +21,4 @@ class JournalSchema(JournalBase):
     id: int
 
     class Config:
-        from_attributes = True  # для Pydantic v2
+        orm_mode = True

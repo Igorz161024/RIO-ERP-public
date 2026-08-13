@@ -6,9 +6,9 @@ class Journal(Base):
     __tablename__ = "journal"
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(Date, nullable=False)
-    operation = Column(String, nullable=False)
-    status = Column(String, nullable=False)
+    date = Column(Date, nullable=False, index=True)
+    operation = Column(String, nullable=False, index=True)
+    status = Column(String, nullable=False, index=True)
     amount = Column(Float, nullable=False)
 
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)

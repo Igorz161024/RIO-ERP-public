@@ -1,42 +1,30 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.database import SessionLocal
-from backend.models import accounts
-from backend.schemas import AccountSchema, AccountCreate, AccountUpdate
-from backend.auth import get_current_user_role
+from backend.database import get_db
+from backend.models.accounts import Account
+from backend.schemas.accounts import AccountSchema, AccountCreate, AccountUpdate
+from backend.auth import get_current_user
 
 router = APIRouter(
     prefix="/api/accounts",
     tags=["Accounts"]
 )
 
-# Dependency для отримання сесії
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 # --- CRUD для Accounts ---
 @router.get("/", response_model=list[AccountSchema])
 def read_accounts(
-    role: str = Depends(get_current_user_role),
+    current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return db.query(accounts.Account).all()
+    return db.query(Account).all()
 
 @router.post("/", response_model=AccountSchema)
 def create_account(
     entry: AccountCreate,
-    role: str = Depends(get_current_user_role),
+    current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    new_entry = accounts.Account(**entry.dict())
+    new_entry = Account(**entry.dict())
     db.add(new_entry)
     db.commit()
     db.refresh(new_entry)
@@ -46,12 +34,10 @@ def create_account(
 def update_account(
     account_id: int,
     entry: AccountUpdate,
-    role: str = Depends(get_current_user_role),
+    current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    db_entry = db.query(accounts.Account).filter(accounts.Account.id == account_id).first()
+    db_entry = db.query(Account).filter(Account.id == account_id).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Запис не знайдено")
     for key, value in entry.dict(exclude_unset=True).items():
@@ -63,12 +49,10 @@ def update_account(
 @router.delete("/{account_id}")
 def delete_account(
     account_id: int,
-    role: str = Depends(get_current_user_role),
+    current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    if role not in ["accountant", "admin"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-    db_entry = db.query(accounts.Account).filter(accounts.Account.id == account_id).first()
+    db_entry = db.query(Account).filter(Account.id == account_id).first()
     if not db_entry:
         raise HTTPException(status_code=404, detail="Запис не знайдено")
     db.delete(db_entry)

@@ -6,8 +6,8 @@ class Account(Base):
     __tablename__ = "accounts"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    balance = Column(Float, default=0)
+    name = Column(String, unique=True, index=True, nullable=False)
+    balance = Column(Float, default=0.0)
 
+    # двосторонній зв’язок із Journal
     journals = relationship("Journal", back_populates="account")
