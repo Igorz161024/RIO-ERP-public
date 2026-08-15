@@ -17,12 +17,20 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# -------------------------------
+# Хешування та перевірка паролів
+# -------------------------------
 def get_password_hash(password: str):
+    """Хешує пароль за допомогою bcrypt."""
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str):
+    """Перевіряє відповідність пароля та його хешу."""
     return pwd_context.verify(plain_password, hashed_password)
 
+# -------------------------------
+# Робота з JWT токенами
+# -------------------------------
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     """
     Створює JWT токен з даними користувача.
@@ -42,6 +50,19 @@ def verify_token(token: str):
         return payload
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+# -------------------------------
+# Отримання користувача / ролі
+# -------------------------------
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    """
+    Витягує ім’я користувача з токена.
+    """
+    payload = verify_token(token)
+    username = payload.get("sub")
+    if username is None:
+        raise HTTPException(status_code=403, detail="User not found in token")
+    return username
 
 def get_current_user_role(token: str = Depends(oauth2_scheme)):
     """

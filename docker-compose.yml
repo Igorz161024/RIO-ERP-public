@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   rio_erp_db:
     image: postgres:18
@@ -8,9 +10,9 @@ services:
       POSTGRES_PASSWORD: 4568
       POSTGRES_DB: erp_diplom
     ports:
-      - "5434:5432"   # новий порт для Postgres
+      - "5434:5432"   # порт для нового Postgres
     volumes:
-      - rio_db_data:/var/lib/postgresql
+      - rio_db_data:/var/lib/postgresql   # ✅ правильний mount для Postgres 18+
     networks:
       - rio_erp_network
     healthcheck:
@@ -63,7 +65,7 @@ services:
       - rio_backend1
       - rio_backend2
     ports:
-      - "8001:8001"   # новий порт для Node
+      - "8001:8001"   # порт для Node
     networks:
       - rio_erp_network
 
@@ -79,7 +81,7 @@ services:
     depends_on:
       - rio_node
     ports:
-      - "3001:80"     # новий порт для фронтенду
+      - "3001:80"     # порт для фронтенду
 
   rio_backup:
     image: alpine

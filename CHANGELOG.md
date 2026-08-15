@@ -96,3 +96,10 @@
 - Автоматично згенеровано файл міграції:  
   `backend/alembic/versions/fc35bc4a14d0_init_schema.py`
 - ERP‑проєкт готовий до подальших змін через нові міграції.
+### 15.08.2026
+- Оновлено main.py: додано генерацію JWT токена з полем role, виправлено get_current_user для перевірки username + role.
+- Додано Pydantic‑схеми AccountSchema та JournalSchema для коректної серіалізації ORM‑об’єктів у JSON.
+- Переписано ендпоінти /api/accounts/ та /api/journal/ з response_model, щоб уникнути Internal Server Error.
+- Налаштовано роботу з токеном у PowerShell: збереження у змінну $TOKEN та використання у заголовках Authorization.
+- Перезапущено контейнери rio_backend1, rio_backend2, rio_erp_db — статус Healthy, бекенди стартують стабільно.
+- Проведено тестові виклики API, зафіксовано проблему з Invalid token, визначено наступний крок — перевірка CRUD після оновлення main.py.
