@@ -10,9 +10,9 @@ services:
       POSTGRES_PASSWORD: 4568
       POSTGRES_DB: erp_diplom
     ports:
-      - "5434:5432"   # порт для нового Postgres
+      - "5434:5432"
     volumes:
-      - rio_db_data:/var/lib/postgresql   # ✅ правильний mount для Postgres 18+
+      - rio_db_data:/var/lib/postgresql
     networks:
       - rio_erp_network
     healthcheck:
@@ -32,10 +32,14 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
+    env_file:
+      - .env.prod        # ✅ підключення секретів
     volumes:
       - ./backend:/app/backend
     networks:
       - rio_erp_network
+    ports:
+      - "7000:8000"
 
   rio_backend2:
     build:
@@ -48,10 +52,14 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
+    env_file:
+      - .env.prod        # ✅ підключення секретів
     volumes:
       - ./backend:/app/backend
     networks:
       - rio_erp_network
+    ports:
+      - "7001:8000"
 
   rio_node:
     image: node:18
@@ -65,7 +73,7 @@ services:
       - rio_backend1
       - rio_backend2
     ports:
-      - "8001:8001"   # порт для Node
+      - "8001:8001"
     networks:
       - rio_erp_network
 
@@ -81,7 +89,7 @@ services:
     depends_on:
       - rio_node
     ports:
-      - "3001:80"     # порт для фронтенду
+      - "3001:80"
 
   rio_backup:
     image: alpine
