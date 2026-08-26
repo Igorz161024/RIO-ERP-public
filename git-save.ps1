@@ -13,11 +13,11 @@ git add .
 git commit -m $Message
 
 # Пул з приватного та публічного репозиторіїв
-git pull origin main --allow-unrelated-histories --no-edit
+git pull private main --allow-unrelated-histories --no-edit
 git pull public main --allow-unrelated-histories --no-edit
 
 # Пуш у приватний та публічний репозиторії
-git push origin main
+git push private main
 git push public main
 
 Write-Output "✅ Зміни збережено і відправлено у приватний та публічний репозиторії."
