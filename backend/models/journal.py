@@ -13,3 +13,6 @@ class Journal(Base):
 
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=True)
     account = relationship("Account", back_populates="journals")
+
+    # нове поле
+    comment = Column(String, nullable=True)

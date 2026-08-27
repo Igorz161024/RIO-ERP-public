@@ -7,6 +7,7 @@ class JournalBase(BaseModel):
     operation: str
     status: str
     amount: float
+    comment: Optional[str] = None   # нове поле
 
 class JournalCreate(JournalBase):
     pass
@@ -16,6 +17,7 @@ class JournalUpdate(BaseModel):
     operation: Optional[str] = None
     status: Optional[str] = None
     amount: Optional[float] = None
+    comment: Optional[str] = None   # нове поле
 
 class JournalSchema(JournalBase):
     id: int

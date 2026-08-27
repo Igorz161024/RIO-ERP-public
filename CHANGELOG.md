@@ -254,3 +254,6 @@
 - Створено таблиці accounts, journal, finance, inventory, legal, purchases, sales
 - Налаштовано зв’язки: journal.account_id → accounts.id
 - CRUD-тести для accounts та journal успішно пройшли (8/8 PASSED)
+## [2026-08-27]
+- Додано поле `comment` у таблицю `journal` (ревізія Alembic 588105a9487f).
+- Оновлено Pydantic‑схеми `JournalBase` та `JournalUpdate`, щоб підтримувати поле `comment`.
