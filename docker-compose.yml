@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   rio_erp_db:
     image: postgres:18
@@ -33,7 +31,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
     env_file:
-      - .env.prod        # ✅ підключення секретів
+      - .env.prod
     volumes:
       - ./backend:/app/backend
     networks:
@@ -53,7 +51,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
     env_file:
-      - .env.prod        # ✅ підключення секретів
+      - .env.prod
     volumes:
       - ./backend:/app/backend
     networks:
@@ -97,10 +95,9 @@ services:
     restart: always
     volumes:
       - ./backups:/backups
-      - ./backup.sh:/backup.sh
     networks:
       - rio_erp_network
-    entrypoint: ["/bin/sh", "/backup.sh"]
+    command: ["sleep", "infinity"]
 
 networks:
   rio_erp_network:
