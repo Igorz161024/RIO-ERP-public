@@ -298,3 +298,16 @@ feat(migrations): завершено міграції Alembic для всіх м
 
 База erp_diplom синхронізована з останньою ревізією (head).
 Історія змін зафіксована у Alembic, всі таблиці під контролем.
+[2026-09-17] Робота над модулем Users та безпекою:
+- Завершено міграції Alembic для всіх моделей (Accounts, Journal, Purchases, Sales, Inventory, Finance, Legal, Users).
+- Додано підтримку refresh‑токенів у модулі Users.
+- Забезпечено збереження паролів користувачів через bcrypt.
+- Розширено систему ролей у JWT (admin, user, auditor).
+
+Створено та додано нові файли:
+- backend/auth.py — реалізація авторизації та refresh‑токенів.
+- backend/models/user.py — модель користувача з полями для ролей та токенів.
+- backend/routes/auth.py — маршрути для реєстрації, логіну та оновлення токенів.
+- backend/services/auth.py — сервісна логіка для роботи з користувачами та токенами.
+- frontend_rio/services/accounts.py, entry_lines.py — інтеграція з новими бекенд‑модулями.
+- Alembic‑міграції для Users (створення таблиці, додавання refresh‑токенів та ролей).
