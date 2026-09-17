@@ -1,0 +1,14 @@
+              List of relations
+ Schema |      Name       | Type  |  Owner   
+--------+-----------------+-------+----------
+ public | accounts        | table | postgres
+ public | alembic_version | table | postgres
+ public | finance         | table | postgres
+ public | inventory       | table | postgres
+ public | journal         | table | postgres
+ public | legal           | table | postgres
+ public | purchases       | table | postgres
+ public | sales           | table | postgres
+ public | users           | table | postgres
+(9 rows)
+

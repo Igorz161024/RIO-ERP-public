@@ -1,11 +1,12 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# Імпортуємо Base та всі моделі через абсолютні імпорти
+# Додаємо шлях до кореня проєкту (RIO-ERP), щоб імпорти backend працювали
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+# Імпортуємо Base та всі моделі
 from backend.database import Base
 from backend.models.accounts import Account
 from backend.models.journal import Journal
@@ -14,16 +15,17 @@ from backend.models.inventory import Inventory
 from backend.models.purchases import Purchase
 from backend.models.sales import Sale
 from backend.models.legal import Legal
+from backend.models.user import User   # 👈 модель Users
 
 # Alembic Config object
 config = context.config
 
-# Тут вже є всі таблиці через Base.metadata
+# Метадані для міграцій
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
+    """Запуск міграцій у 'offline' режимі."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -36,7 +38,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
+    """Запуск міграцій у 'online' режимі."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

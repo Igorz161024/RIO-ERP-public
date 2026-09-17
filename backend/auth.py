@@ -20,18 +20,18 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 # -------------------------------
 # Хешування та перевірка паролів
 # -------------------------------
-def get_password_hash(password: str):
+def get_password_hash(password: str) -> str:
     """Хешує пароль за допомогою bcrypt."""
     return pwd_context.hash(password)
 
-def verify_password(plain_password: str, hashed_password: str):
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Перевіряє відповідність пароля та його хешу."""
     return pwd_context.verify(plain_password, hashed_password)
 
 # -------------------------------
 # Робота з JWT токенами
 # -------------------------------
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
     Створює JWT токен з даними користувача.
     У data можна передати {"sub": username, "role": "accountant"}.
@@ -41,7 +41,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_token(token: str):
+def verify_token(token: str) -> dict:
     """
     Перевіряє токен і повертає payload.
     """
@@ -54,7 +54,7 @@ def verify_token(token: str):
 # -------------------------------
 # Отримання користувача / ролі
 # -------------------------------
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
     """
     Витягує ім’я користувача з токена.
     """
@@ -64,7 +64,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=403, detail="User not found in token")
     return username
 
-def get_current_user_role(token: str = Depends(oauth2_scheme)):
+def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
     """
     Витягує роль користувача з токена.
     """
@@ -73,3 +73,4 @@ def get_current_user_role(token: str = Depends(oauth2_scheme)):
     if role is None:
         raise HTTPException(status_code=403, detail="Role not found in token")
     return role
+

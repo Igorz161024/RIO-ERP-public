@@ -1,24 +1,9 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship, Session
-from backend.database import engine, SessionLocal
-Base = declarative_base()
+from backend.database import SessionLocal
+from backend.models.accounts import Account
+from backend.models.entry_lines import EntryLine
 
-class Account(Base):
-    __tablename__ = "accounts"
-    id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, unique=True)
-    name = Column(String)
-    type = Column(String)
-
-class EntryLine(Base):
-    __tablename__ = "entry_lines"
-    id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey("accounts.id"))
-    debit = Column(Integer, default=0)
-    credit = Column(Integer, default=0)
-    account = relationship("Account")
-
-def add_account(code, name, type):
+def add_account(code: str, name: str, type: str):
+    """Додати новий рахунок, якщо він ще не існує"""
     db = SessionLocal()
     account = db.query(Account).filter_by(code=code).first()
     if not account:
@@ -29,17 +14,24 @@ def add_account(code, name, type):
     db.close()
     return account
 
-def add_entry(date, description, lines):
+def add_entry(date, description, lines: list[dict]):
+    """Створити проводки для операції"""
     db = SessionLocal()
     for line in lines:
-        entry_line = EntryLine(account_id=line["account_id"], debit=line["debit"], credit=line["credit"])
+        entry_line = EntryLine(
+            journal_id=line["journal_id"],
+            account=line["account"],
+            debit=line.get("debit", 0),
+            credit=line.get("credit", 0)
+        )
         db.add(entry_line)
     db.commit()
     db.close()
 
-def get_account_balance(account_id):
+def get_account_balance(account: str):
+    """Розрахувати залишок по рахунку"""
     db = SessionLocal()
-    debit = sum(l.debit for l in db.query(EntryLine).filter_by(account_id=account_id))
-    credit = sum(l.credit for l in db.query(EntryLine).filter_by(account_id=account_id))
+    debit = sum(l.debit for l in db.query(EntryLine).filter_by(account=account))
+    credit = sum(l.credit for l in db.query(EntryLine).filter_by(account=account))
     db.close()
     return debit - credit
