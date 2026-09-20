@@ -1,7 +1,16 @@
-﻿from fastapi import FastAPI, Depends, HTTPException, status
+﻿import os
+from datetime import datetime, timedelta
+# Сервіси авторизації
+from backend.services.auth import get_password_hash, authenticate_user, create_access_token
+# SQLAlchemy
+from sqlalchemy.orm import Session
+from backend.database import get_db
+# FastAPI та інші бібліотеки
+import uvicorn
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
 
 # SQLAlchemy ORM
 from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, DateTime
@@ -11,6 +20,9 @@ from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from pydantic import BaseModel
 from typing import Optional
 
+# -------------------------------
+# Конфігурація бази даних
+# -------------------------------
 DATABASE_URL = "postgresql://postgres:4568@rio_erp_db:5432/erp_diplom"
 
 engine = create_engine(DATABASE_URL)
@@ -72,6 +84,9 @@ class Users(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True)
     email = Column(String, nullable=False, unique=True)
+    password_hash = Column(String, nullable=False)
+    role = Column(String, default="user", nullable=False)
+    refresh_token = Column(String, nullable=True)
 
 # -------------------------------
 # Pydantic-схеми
@@ -160,35 +175,53 @@ class PurchasesSchema(PurchasesBase):
 class UsersBase(BaseModel):
     username: str
     email: str
-class UsersCreate(UsersBase): pass
+class UsersCreate(UsersBase):
+    password: str   # <== додати цей рядок
+
 class UsersUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
+    password: Optional[str] = None   # <== додати цей рядок
+
 class UsersSchema(UsersBase):
     id: int
+    role: str
     class Config: from_attributes = True
 
 # -------------------------------
 # JWT конфігурація
 # -------------------------------
-import os
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env.prod")
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey123")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-app = FastAPI()
+app = FastAPI(title="RIO-ERP Backend", version="1.0.0")
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# -------------------------------
+# Підключення роутерів
+# -------------------------------
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @app.post("/token")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    if form_data.username != "admin" or form_data.password != "1234":
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"sub": form_data.username, "role": "admin"}
-    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return {"access_token": token, "token_type": "bearer"}
+    access_token = create_access_token({"sub": user.username, "role": user.role})
+    return {"access_token": access_token, "token_type": "bearer"}
+
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
@@ -213,7 +246,11 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
     @app.post(f"/api/{prefix}/", response_model=schema)
     def create_item(item: create_schema, current_user: dict = Depends(get_current_user)):
         db = SessionLocal()
-        new_item = model(**item.dict())
+        new_item_data = item.dict()
+        # Якщо створюємо користувача — хешуємо пароль
+        if prefix == "users" and "password" in new_item_data:
+            new_item_data["password_hash"] = get_password_hash(new_item_data.pop("password"))
+        new_item = model(**new_item_data)
         db.add(new_item); db.commit(); db.refresh(new_item)
         return new_item
 
@@ -221,8 +258,13 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
     def update_item(item_id: int, item: update_schema, current_user: dict = Depends(get_current_user)):
         db = SessionLocal()
         db_item = db.query(model).filter(model.id == item_id).first()
-        if not db_item: raise HTTPException(status_code=404, detail="Not Found")
-        for field, value in item.dict(exclude_unset=True).items():
+        if not db_item:
+            raise HTTPException(status_code=404, detail="Not Found")
+        update_data = item.dict(exclude_unset=True)
+        # Якщо оновлюємо користувача — хешуємо новий пароль
+        if prefix == "users" and "password" in update_data:
+            update_data["password_hash"] = get_password_hash(update_data.pop("password"))
+        for field, value in update_data.items():
             setattr(db_item, field, value)
         db.commit(); db.refresh(db_item)
         return db_item
@@ -231,11 +273,15 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
     def delete_item(item_id: int, current_user: dict = Depends(get_current_user)):
         db = SessionLocal()
         db_item = db.query(model).filter(model.id == item_id).first()
-        if not db_item: raise HTTPException(status_code=404, detail="Not Found")
-        db.delete(db_item); db.commit()
+        if not db_item:
+            raise HTTPException(status_code=404, detail="Not Found")
+        db.delete(db_item)
+        db.commit()
         return {"detail": f"{prefix.capitalize()} deleted"}
 
+# -------------------------------
 # Реєстрація CRUD для всіх модулів
+# -------------------------------
 crud_routes(Account, AccountSchema, AccountCreate, AccountUpdate, "accounts")
 crud_routes(Journal, JournalSchema, JournalCreate, JournalUpdate, "journal")
 crud_routes(Finance, FinanceSchema, FinanceCreate, FinanceUpdate, "finance")
@@ -244,6 +290,13 @@ crud_routes(Sales, SalesSchema, SalesCreate, SalesUpdate, "sales")
 crud_routes(Legal, LegalSchema, LegalCreate, LegalUpdate, "legal")
 crud_routes(Purchases, PurchasesSchema, PurchasesCreate, PurchasesUpdate, "purchases")
 crud_routes(Users, UsersSchema, UsersCreate, UsersUpdate, "users")
+
+# -------------------------------
+# Точка входу
+# -------------------------------
+if __name__ == "__main__":
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=7000, reload=True)
+
 
 
 

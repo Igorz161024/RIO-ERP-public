@@ -297,16 +297,22 @@ feat(migrations): завершено міграції Alembic для всіх м
 - Users
 
 База erp_diplom синхронізована з останньою ревізією (head).
-Історія змін зафіксована у Alembic, всі таблиці під контролем.
-[2026-09-17] Робота над модулем Users та безпекою:
-- Додано підтримку refresh‑токенів у модулі Users.
-- Забезпечено збереження паролів користувачів через bcrypt.
-- Розширено систему ролей у JWT (admin, user, auditor).
+## [2026-09-20] Backend
+### Added
+- Реалізовано підтримку refresh‑токенів у `services/auth.py`:
+  - Генерація refresh‑токена при логіні.
+  - Оновлення access‑токена через refresh‑токен.
+  - Видалення refresh‑токена при логауті.
+- Додано нові ендпоінти у `routes/auth.py`:
+  - `/auth/login` — повертає access_token та refresh_token.
+  - `/auth/refresh` — оновлює access_token за refresh‑токеном.
+  - `/auth/logout` — анулює refresh‑токен користувача.
 
-Створено та додано нові файли:
-- backend/auth.py — авторизація та робота з токенами.
-- backend/models/user.py — модель користувача з ролями та refresh‑токенами.
-- backend/routes/auth.py — маршрути для реєстрації, логіну та оновлення токенів.
-- backend/services/auth.py — сервісна логіка для користувачів і токенів.
-- frontend_rio/services/accounts.py, entry_lines.py — інтеграція з бекенд‑модулями.
-- Alembic‑міграції для Users (створення таблиці, додавання refresh‑токенів та ролей).
+### Changed
+- Підключено роутер авторизації у `main.py`:
+  ```python
+  app.include_router(auth.router, prefix="/auth", tags=["auth"])
+### Changed
+- Інтегровано bcrypt‑хешування у CRUD‑операції для користувачів:
+  - При створенні користувача пароль автоматично хешується.
+  - При оновленні користувача новий пароль також хешується.
