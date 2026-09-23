@@ -37,7 +37,7 @@ services:
     networks:
       - rio_erp_network
     ports:
-      - "7000:8000"
+      - "7000:7000"
 
   rio_backend2:
     build:
@@ -57,7 +57,8 @@ services:
     networks:
       - rio_erp_network
     ports:
-      - "7001:8000"
+      - "7001:7001"
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 7001
 
   rio_node:
     image: node:18

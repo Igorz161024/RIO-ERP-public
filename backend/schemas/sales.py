@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from typing import Optional
 
+# -------------------------------
+# Sale (схеми)
+# -------------------------------
 class SaleBase(BaseModel):
     client: str
     invoice: str

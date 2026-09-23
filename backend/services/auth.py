@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
-from backend.models.users import User
+from backend.models.user import User
 
 # Завантаження секретів
 load_dotenv(dotenv_path=".env.prod")

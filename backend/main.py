@@ -1,216 +1,63 @@
 ﻿import os
-from datetime import datetime, timedelta
-# Сервіси авторизації
-from backend.services.auth import get_password_hash, authenticate_user, create_access_token
-# SQLAlchemy
-from sqlalchemy.orm import Session
-from backend.database import get_db
-# FastAPI та інші бібліотеки
-import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 
-# SQLAlchemy ORM
-from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, DateTime
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from backend.database import SessionLocal, get_db
+from backend.services.auth import authenticate_user, create_access_token, get_password_hash
+from backend.routers import auth
+# Імпорти моделей
+from backend.models.accounts import Account
+from backend.models.journal import Journal
+from backend.models.finance import Finance
+from backend.models.inventory import Inventory
+from backend.models.sales import Sale
+from backend.models.legal import Legal
+from backend.models.purchases import Purchase
+from backend.models.user import User
 
-# Pydantic
-from pydantic import BaseModel
-from typing import Optional
-
-# -------------------------------
-# Конфігурація бази даних
-# -------------------------------
-DATABASE_URL = "postgresql://postgres:4568@rio_erp_db:5432/erp_diplom"
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine)
-Base = declarative_base()
-
-# -------------------------------
-# ORM-моделі
-# -------------------------------
-class Account(Base):
-    __tablename__ = "accounts"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False, unique=True)
-    balance = Column(Float, default=0.0)
-    journals = relationship("Journal", back_populates="account")
-
-class Journal(Base):
-    __tablename__ = "journal"
-    id = Column(Integer, primary_key=True, index=True)
-    date = Column(DateTime, default=datetime.utcnow)
-    operation = Column(String, nullable=False)
-    status = Column(String, nullable=False)
-    amount = Column(Integer, nullable=False)
-    account_id = Column(Integer, ForeignKey("accounts.id"))
-    account = relationship("Account", back_populates="journals")
-
-class Finance(Base):
-    __tablename__ = "finance"
-    id = Column(Integer, primary_key=True, index=True)
-    description = Column(String, nullable=False)
-    amount = Column(Float, nullable=False)
-
-class Inventory(Base):
-    __tablename__ = "inventory"
-    id = Column(Integer, primary_key=True, index=True)
-    item = Column(String, nullable=False)
-    quantity = Column(Integer, nullable=False)
-
-class Sales(Base):
-    __tablename__ = "sales"
-    id = Column(Integer, primary_key=True, index=True)
-    product = Column(String, nullable=False)
-    total = Column(Float, nullable=False)
-
-class Legal(Base):
-    __tablename__ = "legal"
-    id = Column(Integer, primary_key=True, index=True)
-    case = Column(String, nullable=False)
-    status = Column(String, nullable=False)
-
-class Purchases(Base):
-    __tablename__ = "purchases"
-    id = Column(Integer, primary_key=True, index=True)
-    item = Column(String, nullable=False)
-    cost = Column(Float, nullable=False)
-
-class Users(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, nullable=False, unique=True)
-    email = Column(String, nullable=False, unique=True)
-    password_hash = Column(String, nullable=False)
-    role = Column(String, default="user", nullable=False)
-    refresh_token = Column(String, nullable=True)
+# Імпорти схем
+from backend.schemas.accounts import AccountSchema, AccountCreate, AccountUpdate
+from backend.schemas.journal import JournalSchema, JournalCreate, JournalUpdate
+from backend.schemas.finance import FinanceSchema, FinanceCreate, FinanceUpdate
+from backend.schemas.inventory import InventorySchema, InventoryCreate, InventoryUpdate
+from backend.schemas.sales import SaleSchema, SaleCreate, SaleUpdate
+from backend.schemas.legal import LegalSchema, LegalCreate, LegalUpdate
+from backend.schemas.purchases import PurchaseSchema, PurchaseCreate, PurchaseUpdate
+from backend.schemas.user import UserSchema, UserCreate, UserUpdate
 
 # -------------------------------
-# Pydantic-схеми
+# Ініціалізація FastAPI
 # -------------------------------
-class AccountBase(BaseModel):
-    name: str
-    balance: float
-class AccountCreate(AccountBase): pass
-class AccountUpdate(BaseModel):
-    name: Optional[str] = None
-    balance: Optional[float] = None
-class AccountSchema(AccountBase):
-    id: int
-    class Config: from_attributes = True
-
-class JournalBase(BaseModel):
-    operation: str
-    status: str
-    amount: int
-    account_id: int
-class JournalCreate(JournalBase): pass
-class JournalUpdate(BaseModel):
-    operation: Optional[str] = None
-    status: Optional[str] = None
-    amount: Optional[int] = None
-class JournalSchema(JournalBase):
-    id: int
-    date: datetime
-    class Config: from_attributes = True
-
-class FinanceBase(BaseModel):
-    description: str
-    amount: float
-class FinanceCreate(FinanceBase): pass
-class FinanceUpdate(BaseModel):
-    description: Optional[str] = None
-    amount: Optional[float] = None
-class FinanceSchema(FinanceBase):
-    id: int
-    class Config: from_attributes = True
-
-class InventoryBase(BaseModel):
-    item: str
-    quantity: int
-class InventoryCreate(InventoryBase): pass
-class InventoryUpdate(BaseModel):
-    item: Optional[str] = None
-    quantity: Optional[int] = None
-class InventorySchema(InventoryBase):
-    id: int
-    class Config: from_attributes = True
-
-class SalesBase(BaseModel):
-    product: str
-    total: float
-class SalesCreate(SalesBase): pass
-class SalesUpdate(BaseModel):
-    product: Optional[str] = None
-    total: Optional[float] = None
-class SalesSchema(SalesBase):
-    id: int
-    class Config: from_attributes = True
-
-class LegalBase(BaseModel):
-    case: str
-    status: str
-class LegalCreate(LegalBase): pass
-class LegalUpdate(BaseModel):
-    case: Optional[str] = None
-    status: Optional[str] = None
-class LegalSchema(LegalBase):
-    id: int
-    class Config: from_attributes = True
-
-class PurchasesBase(BaseModel):
-    item: str
-    cost: float
-class PurchasesCreate(PurchasesBase): pass
-class PurchasesUpdate(BaseModel):
-    item: Optional[str] = None
-    cost: Optional[float] = None
-class PurchasesSchema(PurchasesBase):
-    id: int
-    class Config: from_attributes = True
-
-class UsersBase(BaseModel):
-    username: str
-    email: str
-class UsersCreate(UsersBase):
-    password: str   # <== додати цей рядок
-
-class UsersUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None   # <== додати цей рядок
-
-class UsersSchema(UsersBase):
-    id: int
-    role: str
-    class Config: from_attributes = True
-
-# -------------------------------
-# JWT конфігурація
-# -------------------------------
-from dotenv import load_dotenv
-load_dotenv(dotenv_path=".env.prod")
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey123")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 app = FastAPI(title="RIO-ERP Backend", version="1.0.0")
 
-# CORS
+# -------------------------------
+# Налаштування CORS
+# -------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # або конкретні домени
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # -------------------------------
 # Підключення роутерів
 # -------------------------------
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
+# -------------------------------
+# -------------------------------
+# JWT конфігурація
+# -------------------------------
+load_dotenv(dotenv_path=".env.prod")
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey123")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -221,7 +68,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token = create_access_token({"sub": user.username, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
@@ -247,7 +93,6 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
     def create_item(item: create_schema, current_user: dict = Depends(get_current_user)):
         db = SessionLocal()
         new_item_data = item.dict()
-        # Якщо створюємо користувача — хешуємо пароль
         if prefix == "users" and "password" in new_item_data:
             new_item_data["password_hash"] = get_password_hash(new_item_data.pop("password"))
         new_item = model(**new_item_data)
@@ -261,7 +106,6 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
         if not db_item:
             raise HTTPException(status_code=404, detail="Not Found")
         update_data = item.dict(exclude_unset=True)
-        # Якщо оновлюємо користувача — хешуємо новий пароль
         if prefix == "users" and "password" in update_data:
             update_data["password_hash"] = get_password_hash(update_data.pop("password"))
         for field, value in update_data.items():
@@ -286,16 +130,17 @@ crud_routes(Account, AccountSchema, AccountCreate, AccountUpdate, "accounts")
 crud_routes(Journal, JournalSchema, JournalCreate, JournalUpdate, "journal")
 crud_routes(Finance, FinanceSchema, FinanceCreate, FinanceUpdate, "finance")
 crud_routes(Inventory, InventorySchema, InventoryCreate, InventoryUpdate, "inventory")
-crud_routes(Sales, SalesSchema, SalesCreate, SalesUpdate, "sales")
+crud_routes(Sale, SaleSchema, SaleCreate, SaleUpdate, "sales")
 crud_routes(Legal, LegalSchema, LegalCreate, LegalUpdate, "legal")
-crud_routes(Purchases, PurchasesSchema, PurchasesCreate, PurchasesUpdate, "purchases")
-crud_routes(Users, UsersSchema, UsersCreate, UsersUpdate, "users")
+crud_routes(Purchase, PurchaseSchema, PurchaseCreate, PurchaseUpdate, "purchases")
+crud_routes(User, UserSchema, UserCreate, UserUpdate, "users")
 
 # -------------------------------
 # Точка входу
 # -------------------------------
 if __name__ == "__main__":
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=7000, reload=True)
+    import uvicorn
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=7000)
 
 
 
