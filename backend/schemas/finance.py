@@ -26,3 +26,4 @@ class FinanceSchema(FinanceBase):
 
     class Config:
         from_attributes = True
+

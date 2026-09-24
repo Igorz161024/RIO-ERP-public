@@ -15,7 +15,7 @@ from backend.models.inventory import Inventory
 from backend.models.purchases import Purchase
 from backend.models.sales import Sale
 from backend.models.legal import Legal
-from backend.models.user import User   # 👈 модель Users
+from backend.models.user import User   # 👈 правильний імпорт (файл users.py)
 
 # Alembic Config object
 config = context.config

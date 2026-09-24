@@ -1,18 +1,10 @@
-import os
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from dotenv import load_dotenv
 from backend.models.user import User
-
-# Завантаження секретів
-load_dotenv(dotenv_path=".env.prod")
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey123")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+from backend.auth import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -67,4 +59,3 @@ def refresh_access_token(db: Session, refresh_token: str) -> str:
 def revoke_refresh_token(user: User, db: Session):
     user.refresh_token = None
     db.add(user); db.commit(); db.refresh(user)
-
