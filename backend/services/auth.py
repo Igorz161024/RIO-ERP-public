@@ -15,16 +15,24 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    print("DEBUG raw plain_password:", repr(plain_password))
+    print("DEBUG length:", len(plain_password.encode("utf-8")))
+    if len(plain_password.encode("utf-8")) > 72:
+        plain_password = plain_password[:72]
     return pwd_context.verify(plain_password, hashed_password)
-
 # -------------------------------
 # Аутентифікація
 # -------------------------------
 def authenticate_user(db: Session, username: str, password: str):
+    # Дебаг: вивід у логи
+    print("DEBUG username:", repr(username))
+    print("DEBUG password:", repr(password))
+
     user = db.query(User).filter(User.username == username).first()
     if not user or not verify_password(password, user.password_hash):
         return None
     return user
+
 
 # -------------------------------
 # Токени
