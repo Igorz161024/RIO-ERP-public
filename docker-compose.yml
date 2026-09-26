@@ -28,10 +28,8 @@ services:
     depends_on:
       rio_erp_db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
     env_file:
-      - .env.prod
+      - .env
     volumes:
       - ./backend:/app/backend
     networks:
@@ -48,10 +46,8 @@ services:
     depends_on:
       rio_erp_db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:4568@rio_erp_db:5432/erp_diplom
     env_file:
-      - .env.prod
+      - .env
     volumes:
       - ./backend:/app/backend
     networks:
@@ -106,3 +102,4 @@ networks:
 
 volumes:
   rio_db_data:
+

@@ -1,9 +1,9 @@
-from pydantic import BaseModel
 from typing import Optional
+from pydantic import BaseModel
 
 class UserBase(BaseModel):
     username: str
-    email: str
+    email: Optional[str] = None
     role: Optional[str] = "user"
 
 class UserCreate(UserBase):
@@ -19,3 +19,4 @@ class UserSchema(UserBase):
 
     class Config:
         from_attributes = True
+
