@@ -8,26 +8,7 @@ from jose import JWTError, jwt
 
 from backend.database import SessionLocal, get_db
 from backend.services.auth import authenticate_user, create_access_token, get_password_hash
-from backend.routers import auth
-# Імпорти моделей
-from backend.models.accounts import Account
-from backend.models.journal import Journal
-from backend.models.finance import Finance
-from backend.models.inventory import Inventory
-from backend.models.sales import Sale
-from backend.models.legal import Legal
-from backend.models.purchases import Purchase
-from backend.models.user import User
-
-# Імпорти схем
-from backend.schemas.accounts import AccountSchema, AccountCreate, AccountUpdate
-from backend.schemas.journal import JournalSchema, JournalCreate, JournalUpdate
-from backend.schemas.finance import FinanceSchema, FinanceCreate, FinanceUpdate
-from backend.schemas.inventory import InventorySchema, InventoryCreate, InventoryUpdate
-from backend.schemas.sales import SaleSchema, SaleCreate, SaleUpdate
-from backend.schemas.legal import LegalSchema, LegalCreate, LegalUpdate
-from backend.schemas.purchases import PurchaseSchema, PurchaseCreate, PurchaseUpdate
-from backend.schemas.user import UserSchema, UserCreate, UserUpdate
+from backend.routers import auth, entry_lines
 
 # -------------------------------
 # Ініціалізація FastAPI
@@ -39,7 +20,7 @@ app = FastAPI(title="RIO-ERP Backend", version="1.0.0")
 # -------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # або конкретні домени
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,15 +30,38 @@ app.add_middleware(
 # Підключення роутерів
 # -------------------------------
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(entry_lines.router, prefix="/entry_lines", tags=["entry_lines"])
 
 # -------------------------------
+# Імпорти моделей
 # -------------------------------
+from backend.models.accounts import Account
+from backend.models.journal import Journal
+from backend.models.finance import Finance
+from backend.models.inventory import Inventory
+from backend.models.sales import Sale
+from backend.models.legal import Legal
+from backend.models.purchases import Purchase
+from backend.models.user import User
+
+# -------------------------------
+# Імпорти схем
+# -------------------------------
+from backend.schemas.accounts import AccountSchema, AccountCreate, AccountUpdate
+from backend.schemas.journal import JournalSchema, JournalCreate, JournalUpdate
+from backend.schemas.finance import FinanceSchema, FinanceCreate, FinanceUpdate
+from backend.schemas.inventory import InventorySchema, InventoryCreate, InventoryUpdate
+from backend.schemas.sales import SaleSchema, SaleCreate, SaleUpdate
+from backend.schemas.legal import LegalSchema, LegalCreate, LegalUpdate
+from backend.schemas.purchases import PurchaseSchema, PurchaseCreate, PurchaseUpdate
+from backend.schemas.user import UserSchema, UserCreate, UserUpdate
+
 # JWT конфігурація
 # -------------------------------
 load_dotenv(dotenv_path=".env.prod")
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey123")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 365  # 365 днів
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
