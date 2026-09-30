@@ -9,3 +9,9 @@ def get_journal():
     if isinstance(data, dict) and "data" in data:
         return data["data"]
     return data
+
+def add_journal_entry(entry: dict):
+    response = httpx.post(f"{API_URL}/api/journal", json=entry)
+    response.raise_for_status()
+    return response.json()
+
