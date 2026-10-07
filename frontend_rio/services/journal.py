@@ -1,17 +1,36 @@
 import httpx
-from config import API_URL
+from config import API_URL, API_TOKEN  # додай API_TOKEN у config.py
+
+BASE_URL = f"{API_URL}/api/journal/"
+HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
 
 def get_journal():
-    response = httpx.get(f"{API_URL}/api/journal")
-    response.raise_for_status()  # якщо помилка — одразу виняток
+    """Отримати список усіх записів журналу"""
+    response = httpx.get(BASE_URL, headers=HEADERS)
+    response.raise_for_status()
     data = response.json()
-    # якщо API повертає {"data": [...]} → витягуємо список
-    if isinstance(data, dict) and "data" in data:
-        return data["data"]
-    return data
+    return data.get("data", data)
 
 def add_journal_entry(entry: dict):
-    response = httpx.post(f"{API_URL}/api/journal", json=entry)
+    """Створити новий запис у журналі"""
+    response = httpx.post(BASE_URL, json=entry, headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
+def get_journal_by_id(entry_id: int):
+    """Отримати запис журналу за ID"""
+    response = httpx.get(f"{BASE_URL}{entry_id}", headers=HEADERS)
+    response.raise_for_status()
+    return response.json()
+
+def update_journal_entry(entry_id: int, updated_data: dict):
+    """Оновити дані запису журналу"""
+    response = httpx.put(f"{BASE_URL}{entry_id}", json=updated_data, headers=HEADERS)
+    response.raise_for_status()
+    return response.json()
+
+def delete_journal_entry(entry_id: int):
+    """Видалити запис журналу"""
+    response = httpx.delete(f"{BASE_URL}{entry_id}", headers=HEADERS)
+    response.raise_for_status()
+    return response.json()

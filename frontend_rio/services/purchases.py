@@ -1,13 +1,31 @@
+# purchases.py
 import httpx
-from config import API_URL
+from config import API_URL, API_TOKEN
+
+BASE_URL = f"{API_URL}/api/purchases/"
+HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
 
 def get_purchases():
-    response = httpx.get(f"{API_URL}/api/purchases")
+    response = httpx.get(BASE_URL, headers=HEADERS)
     response.raise_for_status()
-    data = response.json()
-    return data["data"] if isinstance(data, dict) and "data" in data else data
+    return response.json()
 
 def add_purchase_entry(entry: dict):
-    response = httpx.post(f"{API_URL}/api/purchases", json=entry)
+    response = httpx.post(BASE_URL, json=entry, headers=HEADERS)
+    response.raise_for_status()
+    return response.json()
+
+def get_purchase_by_id(entry_id: int):
+    response = httpx.get(f"{BASE_URL}{entry_id}", headers=HEADERS)
+    response.raise_for_status()
+    return response.json()
+
+def update_purchase_entry(entry_id: int, updated_data: dict):
+    response = httpx.put(f"{BASE_URL}{entry_id}", json=updated_data, headers=HEADERS)
+    response.raise_for_status()
+    return response.json()
+
+def delete_purchase_entry(entry_id: int):
+    response = httpx.delete(f"{BASE_URL}{entry_id}", headers=HEADERS)
     response.raise_for_status()
     return response.json()

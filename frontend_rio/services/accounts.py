@@ -1,23 +1,26 @@
-import requests
+import httpx
+from config import API_URL, API_TOKEN  # додай API_TOKEN у config.py
 
-BASE_URL = "http://localhost:7000/api/accounts/"  # бекенд RIO-ERP завжди на порту 7000
+BASE_URL = f"{API_URL}/api/accounts/"
+HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
 
 def get_accounts():
     """Отримати список усіх рахунків"""
-    response = requests.get(BASE_URL)
+    response = httpx.get(BASE_URL, headers=HEADERS)
     response.raise_for_status()
-    return response.json()
+    data = response.json()
+    return data.get("data", data)
 
 def create_account(name: str, balance: float = 0.0):
     """Створити новий рахунок"""
     payload = {"name": name, "balance": balance}
-    response = requests.post(BASE_URL, json=payload)
+    response = httpx.post(BASE_URL, json=payload, headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
 def get_account_by_id(account_id: int):
     """Отримати рахунок за ID"""
-    response = requests.get(f"{BASE_URL}{account_id}")
+    response = httpx.get(f"{BASE_URL}{account_id}", headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
@@ -28,12 +31,12 @@ def update_account(account_id: int, name: str = None, balance: float = None):
         payload["name"] = name
     if balance is not None:
         payload["balance"] = balance
-    response = requests.put(f"{BASE_URL}{account_id}", json=payload)
+    response = httpx.put(f"{BASE_URL}{account_id}", json=payload, headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
 def delete_account(account_id: int):
     """Видалити рахунок"""
-    response = requests.delete(f"{BASE_URL}{account_id}")
+    response = httpx.delete(f"{BASE_URL}{account_id}", headers=HEADERS)
     response.raise_for_status()
-    return {"status": "deleted", "id": account_id}
+    return response.json()

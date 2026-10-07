@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 
 from backend.database import SessionLocal, get_db
 from backend.services.auth import authenticate_user, create_access_token, get_password_hash
-from backend.routers import auth, entry_lines
+from backend.routers import entry_lines
 
 # -------------------------------
 # Ініціалізація FastAPI
@@ -29,7 +29,7 @@ app.add_middleware(
 # -------------------------------
 # Підключення роутерів
 # -------------------------------
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
+#app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(entry_lines.router, prefix="/entry_lines", tags=["entry_lines"])
 
 # -------------------------------
