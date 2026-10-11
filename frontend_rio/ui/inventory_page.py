@@ -1,4 +1,3 @@
-# frontend_rio/ui/inventory_page.py
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
 from services.inventory import get_inventory, add_inventory_entry
 
@@ -19,21 +18,25 @@ def validate_inventory_entry(name, quantity, category):
 def inventory_page(page: PageView):
     # показ таблиці з бекенду
     data = get_inventory()
-    page.add(Table(data, columns=["id", "name", "quantity", "category"]))
+    if not data:
+        page.alert("ℹ️ Немає записів інвентаря", type="info")
+    else:
+        page.add(Table(data, columns=["id", "name", "quantity", "category"]))
 
     # форма для додавання запису
     form = AutoForm()
     form.add(TextInput(label="Назва товару", name="name"))
-    form.add(NumberInput(label="Кількість", name="quantity"))
+    form.add(NumberInput(label="Кількість", name="quantity", placeholder="10"))
     form.add(TextInput(label="Категорія", name="category"))
 
     def on_submit(values):
         ok, msg = validate_inventory_entry(values["name"], values["quantity"], values["category"])
         if not ok:
-            page.alert(msg)  # показати помилку
+            page.alert(f"❌ Помилка: {msg}", type="error")
         else:
-            add_inventory_entry(values)  # виклик сервісу
-            page.toast("Запис інвентаря успішно додано")
+            add_inventory_entry(values)
+            page.toast("✅ Запис інвентаря успішно додано", duration=3000)
+            form.clear()  # очистити форму після успішного додавання
 
     form.on_submit(on_submit)
     page.add(form)

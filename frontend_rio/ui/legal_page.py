@@ -1,4 +1,3 @@
-# frontend_rio/ui/legal_page.py
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
 from services.legal import get_legal, add_legal_entry
 import datetime
@@ -27,22 +26,26 @@ def validate_legal_entry(date, case_number, description, amount):
 def legal_page(page: PageView):
     # показ таблиці з бекенду
     data = get_legal()
-    page.add(Table(data, columns=["id", "date", "case_number", "description", "amount"]))
+    if not data:
+        page.alert("ℹ️ Немає юридичних записів", type="info")
+    else:
+        page.add(Table(data, columns=["id", "date", "case_number", "description", "amount"]))
 
     # форма для додавання запису
     form = AutoForm()
-    form.add(TextInput(label="Дата (YYYY-MM-DD)", name="date"))
+    form.add(TextInput(label="Дата (YYYY-MM-DD)", name="date", placeholder="2026-10-11"))
     form.add(TextInput(label="Номер справи", name="case_number"))
     form.add(TextInput(label="Опис", name="description"))
-    form.add(NumberInput(label="Сума", name="amount"))
+    form.add(NumberInput(label="Сума", name="amount", placeholder="1000"))
 
     def on_submit(values):
         ok, msg = validate_legal_entry(values["date"], values["case_number"], values["description"], values["amount"])
         if not ok:
-            page.alert(msg)  # показати помилку
+            page.alert(f"❌ Помилка: {msg}", type="error")
         else:
-            add_legal_entry(values)  # виклик сервісу
-            page.toast("Юридичний запис успішно додано")
+            add_legal_entry(values)
+            page.toast("✅ Юридичний запис успішно додано", duration=3000)
+            form.clear()  # очистити форму після успішного додавання
 
     form.on_submit(on_submit)
     page.add(form)

@@ -1,10 +1,11 @@
-# frontend_rio/ui/sales_page.py
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
 from services.sales import get_sales, add_sales_entry
 import datetime
 
+# 🔹 Допустимі статуси продажу
 ALLOWED_STATUSES = ["pending", "completed", "canceled"]
 
+# 🔹 Допоміжна функція для перевірки введених даних
 def validate_sale_entry(date, customer, amount, status):
     if not date.strip():
         return False, "Дата не може бути порожньою"
@@ -24,25 +25,33 @@ def validate_sale_entry(date, customer, amount, status):
 
     return True, "OK"
 
+# 🔹 Основна функція сторінки
 def sales_page(page: PageView):
+    # показ таблиці з бекенду
     data = get_sales()
-    page.add(Table(data, columns=["id", "date", "customer", "amount", "status"]))
+    if not data:
+        page.alert("ℹ️ Немає записів продажів", type="info")
+    else:
+        page.add(Table(data, columns=["id", "date", "customer", "amount", "status"]))
 
+    # форма для додавання запису
     form = AutoForm()
-    form.add(TextInput(label="Дата (YYYY-MM-DD)", name="date"))
+    form.add(TextInput(label="Дата (YYYY-MM-DD)", name="date", placeholder="2026-10-11"))
     form.add(TextInput(label="Клієнт", name="customer"))
-    form.add(NumberInput(label="Сума", name="amount"))
-    form.add(TextInput(label="Статус", name="status"))
+    form.add(NumberInput(label="Сума", name="amount", placeholder="1000"))
+    form.add(TextInput(label="Статус (pending/completed/canceled)", name="status"))
 
     def on_submit(values):
         ok, msg = validate_sale_entry(values["date"], values["customer"], values["amount"], values["status"])
         if not ok:
-            page.alert(msg)
+            page.alert(f"❌ Помилка: {msg}", type="error")
         else:
             add_sales_entry(values)
-            page.toast("Продаж успішно додано")
+            page.toast("✅ Продаж успішно додано", duration=3000)
+            form.clear()  # очистити форму після успішного додавання
 
     form.on_submit(on_submit)
     page.add(form)
 
     return page
+

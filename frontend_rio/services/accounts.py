@@ -1,5 +1,5 @@
 import httpx
-from config import API_URL, API_TOKEN  # додай API_TOKEN у config.py
+from config import API_URL, API_TOKEN  # переконайся, що API_TOKEN є у config.py
 
 BASE_URL = f"{API_URL}/api/accounts/"
 HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
@@ -11,10 +11,9 @@ def get_accounts():
     data = response.json()
     return data.get("data", data)
 
-def create_account(name: str, balance: float = 0.0):
+def add_account_entry(entry: dict):
     """Створити новий рахунок"""
-    payload = {"name": name, "balance": balance}
-    response = httpx.post(BASE_URL, json=payload, headers=HEADERS)
+    response = httpx.post(BASE_URL, json=entry, headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
@@ -24,18 +23,13 @@ def get_account_by_id(account_id: int):
     response.raise_for_status()
     return response.json()
 
-def update_account(account_id: int, name: str = None, balance: float = None):
+def update_account_entry(account_id: int, updated_data: dict):
     """Оновити дані рахунку"""
-    payload = {}
-    if name is not None:
-        payload["name"] = name
-    if balance is not None:
-        payload["balance"] = balance
-    response = httpx.put(f"{BASE_URL}{account_id}", json=payload, headers=HEADERS)
+    response = httpx.put(f"{BASE_URL}{account_id}", json=updated_data, headers=HEADERS)
     response.raise_for_status()
     return response.json()
 
-def delete_account(account_id: int):
+def delete_account_entry(account_id: int):
     """Видалити рахунок"""
     response = httpx.delete(f"{BASE_URL}{account_id}", headers=HEADERS)
     response.raise_for_status()

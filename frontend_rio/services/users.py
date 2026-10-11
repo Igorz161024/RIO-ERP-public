@@ -1,4 +1,3 @@
-# users.py
 import httpx
 from config import API_URL, API_TOKEN
 
@@ -10,7 +9,8 @@ def get_users():
     response.raise_for_status()
     return response.json()
 
-def add_user(entry: dict):
+def add_user_entry(entry: dict):
+    """Створити нового користувача"""
     response = httpx.post(BASE_URL, json=entry, headers=HEADERS)
     response.raise_for_status()
     return response.json()

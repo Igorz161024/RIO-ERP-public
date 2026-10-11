@@ -637,3 +637,44 @@ feat(migrations): завершено міграції Alembic для всіх м
 
 [2026-10-07 17:00] Виконано успішний запит на /token → отримано access_token.
 Мета: остаточна перевірка працездатності авторизації після рефакторингу та виправлення залежностей.
+[2026-10-11 17:00] напрацьовано повну стабілізацію фронтенду RIO‑ERP:
+
+1. Переписані всі файли у директорії frontend_rio/services:
+   - users.py
+   - finance.py
+   - inventory.py
+   - journal.py
+   - legal.py
+   - purchases.py
+   - sales.py
+   - accounts.py
+   - entry_lines.py
+
+2. Уніфіковано структуру функцій:
+   - get_*() → отримати список
+   - add_*_entry() → створити новий запис
+   - get_*_by_id() → отримати запис за ID
+   - update_*_entry() → оновити дані
+   - delete_*_entry() → видалити запис
+
+3. Всі запити тепер працюють через JWT‑авторизацію:
+   HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
+
+4. Чому доводилося переписувати:
+   - У файлах ui/*.py імпортувалися функції, яких не було у services/*.py.
+   - Назви функцій були різні (наприклад, add_user vs add_user_entry), що викликало ImportError.
+   - Через це Rio не запускав фронтенд. Поступово узгоджено всі назви та структуру.
+
+5. Результат:
+   - Фронтенд тепер запускається без падіння на імпортах.
+   - Всі сторінки (Users, Finance, Inventory, Journal, Legal, Purchases, Sales, Accounts, Entry Lines) мають відповідні сервіси.
+   - Архітектура фронту вирівняна: ui → services → main.py працюють узгоджено.
+
+### Зміни у backend/main.py
+- Закоментовано імпорт роутера `entry_lines`:
+  from backend.routers import entry_lines
+
+- Закоментовано реєстрацію роутера `entry_lines`:
+  app.include_router(entry_lines.router, prefix="/entry_lines", tags=["entry_lines"])
+
+Причина: ендпоінти `/api/entry_lines` вже створюються через функцію `crud_routes`, тому пряме підключення роутера викликало дублювання.

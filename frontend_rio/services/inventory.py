@@ -1,5 +1,5 @@
 import httpx
-from config import API_URL, API_TOKEN  # додай API_TOKEN у config.py
+from config import API_URL, API_TOKEN  # переконайся, що API_TOKEN є у config.py
 
 BASE_URL = f"{API_URL}/api/inventory/"
 HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
@@ -34,3 +34,4 @@ def delete_inventory_entry(entry_id: int):
     response = httpx.delete(f"{BASE_URL}{entry_id}", headers=HEADERS)
     response.raise_for_status()
     return response.json()
+

@@ -1,6 +1,8 @@
 import httpx
+import uvicorn
 from fastapi import FastAPI
 from rio import App, PageView, Button
+
 from ui.journal_page import journal_page
 from ui.finance_page import finance_page
 from ui.inventory_page import inventory_page
@@ -8,9 +10,8 @@ from ui.sales_page import sales_page
 from ui.purchases_page import purchases_page
 from ui.legal_page import legal_page
 from ui.users_page import users_page
-import uvicorn
 
-# RIO‑UI додаток
+# 🔹 RIO‑UI додаток
 app_rio = App()
 
 def main_menu() -> PageView:
@@ -34,7 +35,7 @@ def main_menu() -> PageView:
 
     return page
 
-# Реєстрація меню та сторінок
+# 🔹 Реєстрація меню та сторінок
 app_rio.pages.append(main_menu)
 app_rio.pages.append(journal_page)
 app_rio.pages.append(finance_page)
@@ -44,7 +45,7 @@ app_rio.pages.append(purchases_page)
 app_rio.pages.append(legal_page)
 app_rio.pages.append(users_page)
 
-# FastAPI сервер
+# 🔹 FastAPI сервер
 frontend = FastAPI()
 
 @frontend.get("/")

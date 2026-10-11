@@ -1,8 +1,7 @@
 import httpx
-from config import API_URL, API_TOKEN  # додай API_TOKEN у config.py
+from config import API_URL, API_TOKEN  # переконайся, що API_TOKEN є у config.py
 
 BASE_URL = f"{API_URL}/api/finance/"
-
 HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
 
 def get_finance():

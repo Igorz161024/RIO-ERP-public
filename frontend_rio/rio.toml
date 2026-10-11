@@ -1,13 +1,8 @@
-# This is the configuration file for Rio, an easy to use app & web framework for
-# Python.
+[project]
+name = "RIO-ERP Frontend"
+version = "0.1.0"
 
 [app]
-# This is either "website" or "app"
-app-type = "website"
-
-# The name of your Python module
 main-module = "main"
+port = 9000
 
-# All files which are part of your project. Changes to these will trigger a
-# reload and they will be packed up when deploying.
-project-files = ["*.py", "/assets/", "/rio.toml"]
