@@ -678,3 +678,35 @@ feat(migrations): завершено міграції Alembic для всіх м
   app.include_router(entry_lines.router, prefix="/entry_lines", tags=["entry_lines"])
 
 Причина: ендпоінти `/api/entry_lines` вже створюються через функцію `crud_routes`, тому пряме підключення роутера викликало дублювання.
+## [2026-10-12] Уніфікація повідомлень у фронтенді
+- Всі сторінки (users, finance, inventory, journal, legal, purchases, sales) переведено на централізовану систему повідомлень через ui/messages.py.
+- Реалізовано функції show_error, show_info, show_success для єдиного стилю UX.
+- Код очищено від прямих викликів page.alert та page.toast.
+- Забезпечено узгодженість повідомлень між різними модулями фронтенду.
+## [2026-10-12] Доповнення до логів (CRUD-оновлення фронтенду)
+
+- Додано підтримку видалення записів у всіх основних модулях:
+  - purchases_page → функція delete_purchase_entry, кнопка "Видалити" у таблиці.
+  - sales_page → функція delete_sales_entry, підтвердження перед видаленням.
+  - users_page → функція delete_user_entry, попередження через show_warning().
+  - finance_page → функція delete_finance_entry, обробка винятків при видаленні.
+  - inventory_page → функція delete_inventory_entry, єдиний UX для видалення.
+  - journal_page → функція delete_journal_entry, підтвердження перед критичною дією.
+  - legal_page → функція delete_legal_entry, інтеграція show_warning().
+
+- Реалізовано централізовану функцію `show_warning()` у messages.py для попереджень.
+- Усі сторінки тепер мають повний цикл CRUD: додавання + видалення з підтвердженням.
+- Додано обробку винятків при додаванні та видаленні записів для стабільності бекенду.
+- Забезпечено єдиний стиль повідомлень (error, info, success, warning) для всіх модулів
+- Створено `__init__.py` у `frontend_rio`, `services`, `ui`, щоб Python бачив їх як пакети.  
+- Виправлено імпорти у `sales_page.py` та `sales.py` на формат `frontend_rio.services.*` і `frontend_rio.ui.*`.  
+- Перевірено `config.py` — він містить `API_URL`, `FRONTEND_PORT`, `API_TOKEN`.  
+- Запущено `tests/test_sales.py` → усі 5 тестів пройшли успішно.  
+- Валідація даних (`validate_sale_entry`) працює, а UX‑повідомлення (`show_error`, `show_info`, `show_success`, `show_warning`) інтегровані й перевірені.  
+
+---
+
+### CHANGELOG доповнення
+
+**Закрито пункт - Покращення UX — інтегровані повідомлення про помилки та успішні операції у фронтенд‑модулі продажів.  
+**Статус:** Перевірено тестами, всі кейси пройшли успішно.

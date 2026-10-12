@@ -1,5 +1,6 @@
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
-from services.purchases import get_purchases, add_purchase_entry
+from services.purchases import get_purchases, add_purchase_entry, delete_purchase_entry
+from ui.messages import show_error, show_info, show_success, show_warning
 import datetime
 
 # 🔹 Допоміжна функція для перевірки введених даних
@@ -27,9 +28,26 @@ def purchases_page(page: PageView):
     # показ таблиці з бекенду
     data = get_purchases()
     if not data:
-        page.alert("ℹ️ Немає записів закупівель", type="info")
+        show_info(page, "Немає записів закупівель")
     else:
-        page.add(Table(data, columns=["id", "date", "supplier", "item", "amount"]))
+        table = Table(
+            data,
+            columns=["id", "date", "supplier", "item", "amount"],
+            actions=[{"label": "Видалити", "name": "delete_purchase"}]
+        )
+
+        # обробка дій у таблиці
+        def on_action(action, row):
+            if action == "delete_purchase":
+                show_warning(page, f"Ви дійсно хочете видалити закупівлю №{row['id']}?")
+                try:
+                    delete_purchase_entry(row["id"])
+                    show_success(page, "Закупівлю успішно видалено")
+                except Exception as e:
+                    show_error(page, f"Помилка при видаленні: {str(e)}")
+
+        table.on_action(on_action)
+        page.add(table)
 
     # форма для додавання запису
     form = AutoForm()
@@ -41,11 +59,14 @@ def purchases_page(page: PageView):
     def on_submit(values):
         ok, msg = validate_purchase_entry(values["date"], values["supplier"], values["item"], values["amount"])
         if not ok:
-            page.alert(f"❌ Помилка: {msg}", type="error")
+            show_error(page, msg)
         else:
-            add_purchase_entry(values)
-            page.toast("✅ Закупівлю успішно додано", duration=3000)
-            form.clear()  # очистити форму після успішного додавання
+            try:
+                add_purchase_entry(values)
+                show_success(page, "Закупівлю успішно додано")
+                form.clear()  # очистити форму після успішного додавання
+            except Exception as e:
+                show_error(page, f"Помилка при додаванні: {str(e)}")
 
     form.on_submit(on_submit)
     page.add(form)

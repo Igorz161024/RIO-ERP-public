@@ -1,5 +1,6 @@
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
-from services.journal import get_journal, add_journal_entry
+from services.journal import get_journal, add_journal_entry, delete_journal_entry
+from ui.messages import show_error, show_info, show_success, show_warning
 import datetime
 
 # 🔹 Допоміжна функція для перевірки введених даних
@@ -27,9 +28,26 @@ def journal_page(page: PageView):
     # показ таблиці з бекенду
     data = get_journal()
     if not data:
-        page.alert("ℹ️ Немає записів у журналі", type="info")
+        show_info(page, "Немає записів у журналі")
     else:
-        page.add(Table(data, columns=["id", "date", "operation", "status", "amount"]))
+        table = Table(
+            data,
+            columns=["id", "date", "operation", "status", "amount"],
+            actions=[{"label": "Видалити", "name": "delete_journal"}]
+        )
+
+        # обробка дій у таблиці
+        def on_action(action, row):
+            if action == "delete_journal":
+                show_warning(page, f"Ви дійсно хочете видалити запис {row['id']}?")
+                try:
+                    delete_journal_entry(row["id"])
+                    show_success(page, "Запис у журналі успішно видалено")
+                except Exception as e:
+                    show_error(page, f"Помилка при видаленні: {str(e)}")
+
+        table.on_action(on_action)
+        page.add(table)
 
     # форма для додавання запису
     form = AutoForm()
@@ -41,11 +59,14 @@ def journal_page(page: PageView):
     def on_submit(values):
         ok, msg = validate_journal_entry(values["date"], values["operation"], values["amount"], values["status"])
         if not ok:
-            page.alert(f"❌ Помилка: {msg}", type="error")
+            show_error(page, msg)
         else:
-            add_journal_entry(values)
-            page.toast("✅ Запис у журнал успішно додано", duration=3000)
-            form.clear()  # очистити форму після успішного додавання
+            try:
+                add_journal_entry(values)
+                show_success(page, "Запис у журнал успішно додано")
+                form.clear()  # очистити форму після успішного додавання
+            except Exception as e:
+                show_error(page, f"Помилка при додаванні: {str(e)}")
 
     form.on_submit(on_submit)
     page.add(form)

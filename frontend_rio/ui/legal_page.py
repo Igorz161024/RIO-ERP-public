@@ -1,5 +1,6 @@
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
-from services.legal import get_legal, add_legal_entry
+from services.legal import get_legal, add_legal_entry, delete_legal_entry
+from ui.messages import show_error, show_info, show_success, show_warning
 import datetime
 
 # 🔹 Допоміжна функція для перевірки введених даних
@@ -27,9 +28,26 @@ def legal_page(page: PageView):
     # показ таблиці з бекенду
     data = get_legal()
     if not data:
-        page.alert("ℹ️ Немає юридичних записів", type="info")
+        show_info(page, "Немає юридичних записів")
     else:
-        page.add(Table(data, columns=["id", "date", "case_number", "description", "amount"]))
+        table = Table(
+            data,
+            columns=["id", "date", "case_number", "description", "amount"],
+            actions=[{"label": "Видалити", "name": "delete_legal"}]
+        )
+
+        # обробка дій у таблиці
+        def on_action(action, row):
+            if action == "delete_legal":
+                show_warning(page, f"Ви дійсно хочете видалити справу №{row['case_number']}?")
+                try:
+                    delete_legal_entry(row["id"])
+                    show_success(page, "Юридичний запис успішно видалено")
+                except Exception as e:
+                    show_error(page, f"Помилка при видаленні: {str(e)}")
+
+        table.on_action(on_action)
+        page.add(table)
 
     # форма для додавання запису
     form = AutoForm()
@@ -41,11 +59,14 @@ def legal_page(page: PageView):
     def on_submit(values):
         ok, msg = validate_legal_entry(values["date"], values["case_number"], values["description"], values["amount"])
         if not ok:
-            page.alert(f"❌ Помилка: {msg}", type="error")
+            show_error(page, msg)
         else:
-            add_legal_entry(values)
-            page.toast("✅ Юридичний запис успішно додано", duration=3000)
-            form.clear()  # очистити форму після успішного додавання
+            try:
+                add_legal_entry(values)
+                show_success(page, "Юридичний запис успішно додано")
+                form.clear()  # очистити форму після успішного додавання
+            except Exception as e:
+                show_error(page, f"Помилка при додаванні: {str(e)}")
 
     form.on_submit(on_submit)
     page.add(form)

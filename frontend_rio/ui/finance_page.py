@@ -1,5 +1,6 @@
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
-from services.finance import get_finance, add_finance_entry
+from services.finance import get_finance, add_finance_entry, delete_finance_entry
+from ui.messages import show_error, show_info, show_success, show_warning
 import datetime
 
 # 🔹 Допустимі категорії витрат/доходів
@@ -29,9 +30,26 @@ def finance_page(page: PageView):
     # показ таблиці з бекенду
     data = get_finance()
     if not data:
-        page.alert("ℹ️ Немає фінансових записів", type="info")
+        show_info(page, "Немає фінансових записів")
     else:
-        page.add(Table(data, columns=["id", "date", "category", "amount"]))
+        table = Table(
+            data,
+            columns=["id", "date", "category", "amount"],
+            actions=[{"label": "Видалити", "name": "delete_finance"}]
+        )
+
+        # обробка дій у таблиці
+        def on_action(action, row):
+            if action == "delete_finance":
+                show_warning(page, f"Ви дійсно хочете видалити запис {row['id']}?")
+                try:
+                    delete_finance_entry(row["id"])
+                    show_success(page, "Фінансовий запис успішно видалено")
+                except Exception as e:
+                    show_error(page, f"Помилка при видаленні: {str(e)}")
+
+        table.on_action(on_action)
+        page.add(table)
 
     # форма для додавання запису
     form = AutoForm()
@@ -42,14 +60,14 @@ def finance_page(page: PageView):
     def on_submit(values):
         ok, msg = validate_finance_entry(values["date"], values["category"], values["amount"])
         if not ok:
-            page.alert(f"❌ Помилка: {msg}", type="error")
+            show_error(page, msg)
         else:
-            add_finance_entry(values)
-            page.toast(
-                f"✅ Запис додано: {values['category']} {values['amount']} грн",
-                duration=3000
-            )
-            form.clear()  # очистити форму після успішного додавання
+            try:
+                add_finance_entry(values)
+                show_success(page, f"Запис додано: {values['category']} {values['amount']} грн")
+                form.clear()  # очистити форму після успішного додавання
+            except Exception as e:
+                show_error(page, f"Помилка при додаванні: {str(e)}")
 
     form.on_submit(on_submit)
     page.add(form)
