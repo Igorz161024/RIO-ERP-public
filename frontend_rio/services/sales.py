@@ -1,5 +1,5 @@
 import httpx
-from config import API_URL, API_TOKEN  # переконайся, що API_TOKEN є у config.py
+from frontend_rio.config import API_URL, API_TOKEN
 
 BASE_URL = f"{API_URL}/api/sales/"
 HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}

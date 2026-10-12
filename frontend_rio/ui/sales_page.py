@@ -1,5 +1,6 @@
 from rio import PageView, Table, AutoForm, TextInput, NumberInput
-from services.sales import get_sales, add_sales_entry
+from frontend_rio.services.sales import get_sales, add_sales_entry, delete_sales_entry
+from frontend_rio.ui.messages import show_error, show_info, show_success, show_warning
 import datetime
 
 # 🔹 Допустимі статуси продажу
@@ -30,9 +31,26 @@ def sales_page(page: PageView):
     # показ таблиці з бекенду
     data = get_sales()
     if not data:
-        page.alert("ℹ️ Немає записів продажів", type="info")
+        show_info(page, "Немає записів продажів")
     else:
-        page.add(Table(data, columns=["id", "date", "customer", "amount", "status"]))
+        table = Table(
+            data,
+            columns=["id", "date", "customer", "amount", "status"],
+            actions=[{"label": "Видалити", "name": "delete_sale"}]
+        )
+
+        # обробка дій у таблиці
+        def on_action(action, row):
+            if action == "delete_sale":
+                show_warning(page, f"Ви дійсно хочете видалити продаж №{row['id']}?")
+                try:
+                    delete_sales_entry(row["id"])
+                    show_success(page, "Продаж успішно видалено")
+                except Exception as e:
+                    show_error(page, f"Помилка при видаленні: {str(e)}")
+
+        table.on_action(on_action)
+        page.add(table)
 
     # форма для додавання запису
     form = AutoForm()
@@ -44,14 +62,16 @@ def sales_page(page: PageView):
     def on_submit(values):
         ok, msg = validate_sale_entry(values["date"], values["customer"], values["amount"], values["status"])
         if not ok:
-            page.alert(f"❌ Помилка: {msg}", type="error")
+            show_error(page, msg)
         else:
-            add_sales_entry(values)
-            page.toast("✅ Продаж успішно додано", duration=3000)
-            form.clear()  # очистити форму після успішного додавання
+            try:
+                add_sales_entry(values)
+                show_success(page, "Продаж успішно додано")
+                form.clear()  # очистити форму після успішного додавання
+            except Exception as e:
+                show_error(page, f"Помилка при додаванні: {str(e)}")
 
     form.on_submit(on_submit)
     page.add(form)
 
     return page
-
