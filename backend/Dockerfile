@@ -1,14 +1,22 @@
+# Stage 1: builder
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+# Копіюємо requirements.txt з backend і даємо унікальну назву
+COPY backend/requirements.txt backend-requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r backend-requirements.txt
+
+COPY . .
+
+# Stage 2: runtime
 FROM python:3.12-slim
 
 WORKDIR /app
+# Копіюємо встановлені пакети з builder-шару
+COPY --from=builder /usr/local /usr/local
+COPY --from=builder /app /app
 
-# Копіюємо тільки requirements.txt для кешування залежностей
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+ENV PATH="/usr/local/bin:${PATH}"
 
-# Копіюємо весь код проєкту
-COPY . .
-
-# Запускаємо FastAPI через Uvicorn
-# За замовчуванням бекенд слухає порт 7000
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7000"]
+ENV PYTHONPATH=/app

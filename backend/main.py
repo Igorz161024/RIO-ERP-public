@@ -8,7 +8,6 @@ from jose import JWTError, jwt
 
 from backend.database import SessionLocal, get_db
 from backend.services.auth import authenticate_user, create_access_token, get_password_hash
-#from backend.routers import entry_lines
 
 # -------------------------------
 # Ініціалізація FastAPI
@@ -27,10 +26,11 @@ app.add_middleware(
 )
 
 # -------------------------------
-# Підключення роутерів
+# Healthcheck endpoint
 # -------------------------------
-#app.include_router(auth.router, prefix="/auth", tags=["auth"])
-#app.include_router(entry_lines.router, prefix="/entry_lines", tags=["entry_lines"])
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 # -------------------------------
 # Імпорти моделей
@@ -41,8 +41,8 @@ from backend.models.finance import Finance
 from backend.models.inventory import Inventory
 from backend.models.sales import Sale
 from backend.models.legal import Legal
-from backend.models.purchases import Purchase
-from backend.models.user import User
+from backend.models.purchases import Purchase   # ← узгоджено
+from backend.models.user import User           # ← узгоджено
 
 # -------------------------------
 # Імпорти схем
@@ -56,6 +56,11 @@ from backend.schemas.legal import LegalSchema, LegalCreate, LegalUpdate
 from backend.schemas.purchases import PurchaseSchema, PurchaseCreate, PurchaseUpdate
 from backend.schemas.user import UserSchema, UserCreate, UserUpdate
 
+# Імпорт роутера користувачів
+from backend.routers import users_router
+app.include_router(users_router.router)
+
+# -------------------------------
 # JWT конфігурація
 # -------------------------------
 load_dotenv(dotenv_path=".env.prod")
@@ -137,7 +142,6 @@ crud_routes(Inventory, InventorySchema, InventoryCreate, InventoryUpdate, "inven
 crud_routes(Sale, SaleSchema, SaleCreate, SaleUpdate, "sales")
 crud_routes(Legal, LegalSchema, LegalCreate, LegalUpdate, "legal")
 crud_routes(Purchase, PurchaseSchema, PurchaseCreate, PurchaseUpdate, "purchases")
-crud_routes(User, UserSchema, UserCreate, UserUpdate, "users")
 
 # -------------------------------
 # Точка входу
@@ -145,6 +149,7 @@ crud_routes(User, UserSchema, UserCreate, UserUpdate, "users")
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="0.0.0.0", port=7000)
+
 
 
 
