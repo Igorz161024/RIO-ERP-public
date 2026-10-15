@@ -12,3 +12,4 @@ class Account(Base):
 
     # двосторонній зв’язок із Journal
     journals = relationship("Journal", back_populates="account")
+    entry_lines = relationship("EntryLine", back_populates="account")

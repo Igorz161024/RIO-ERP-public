@@ -59,7 +59,8 @@ from backend.schemas.user import UserSchema, UserCreate, UserUpdate
 # Імпорт роутера користувачів
 from backend.routers import users_router
 app.include_router(users_router.router)
-
+from backend.routers import journal_router
+app.include_router(journal_router.router)
 # -------------------------------
 # JWT конфігурація
 # -------------------------------
@@ -136,7 +137,6 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
 # Реєстрація CRUD для всіх модулів
 # -------------------------------
 crud_routes(Account, AccountSchema, AccountCreate, AccountUpdate, "accounts")
-crud_routes(Journal, JournalSchema, JournalCreate, JournalUpdate, "journal")
 crud_routes(Finance, FinanceSchema, FinanceCreate, FinanceUpdate, "finance")
 crud_routes(Inventory, InventorySchema, InventoryCreate, InventoryUpdate, "inventory")
 crud_routes(Sale, SaleSchema, SaleCreate, SaleUpdate, "sales")
@@ -149,8 +149,3 @@ crud_routes(Purchase, PurchaseSchema, PurchaseCreate, PurchaseUpdate, "purchases
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="0.0.0.0", port=7000)
-
-
-
-
-
