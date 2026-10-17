@@ -27,3 +27,19 @@ class FinanceSchema(FinanceBase):
     class Config:
         from_attributes = True
 
+# --- Додаткові схеми для кастомних ендпоінтів ---
+class FinanceEntry(BaseModel):
+    account_id: int
+    date: date
+    operation: str
+    amount: float
+    status: str
+
+class FinanceReportRequest(BaseModel):
+    from_date: date
+    to_date: date
+
+class FinancePlotRequest(BaseModel):
+    account_id: int
+    from_date: date
+    to_date: date
