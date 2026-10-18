@@ -837,3 +837,34 @@ feat(migrations): завершено міграції Alembic для всіх м
 - З валідним токеном Journal Router повертає список операцій (приклад: `Test operation` із сумою 1000.0).
 - Авторизація працює узгоджено з Users та Finance модулями.
 - Контейнери `rio_backend1` та `rio_backend2` перебілдилися й стартували без помилок.
+## [2026-10-18] Added
+- Створено кастомний роутер для модуля **Inventory** з CRUD‑операціями.
+- Додано нові Pydantic‑схеми (`InventoryBase`, `InventoryCreate`, `InventoryUpdate`, `InventorySchema`) із підтримкою поля `price`.
+- Реалізовано ендпоінти для створення, оновлення, перегляду та видалення записів складу.
+- Додано поле `price` у модель SQLAlchemy для таблиці `inventory`.
+
+## [2026-10-18] Changed
+- Оновлено фронтенд‑схеми для відображення ціни товарів.
+- Проведено тестування CRUD‑операцій через `curl` із JWT‑токенами.
+- Виправлено конфігурацію `alembic.ini` для правильного підключення до бази `erp_diplom`.
+
+## [2026-10-18] Fixed
+- Виявлено розбіжності між моделями та реальною базою даних.
+- Alembic автогенерацією виправив:
+  - Типи полів у таблицях `accounts`, `entry_lines`, `finance`.
+  - Додав/видалив колонки у `finance`, `legal`, `purchases`, `sales`.
+  - Відновив індекси та зовнішні ключі у `journal`, `users`.
+  - Видалив застарілі поля (`item_name`, `updated_at` у `inventory`, `product` у `sales` тощо).
+- Синхронізовано стан бази з моделями через `alembic upgrade head`.
+
+## [2026-10-18] Notes
+- Проблема з помилкою `relation "users" already exists` виникла через підключення до системної бази `postgres` замість робочої `erp_diplom`.
+- Вирішено через коректне налаштування `alembic.ini` (`sqlalchemy.url = postgresql+psycopg2://postgres:4568@localhost:5434/erp_diplom`).
+- Після `alembic stamp head` база вирівняна, ревізія застосована, поле `price` успішно додано у таблицю `inventory`.
+## [2026-10-18]
+### Added
+- Поле `price` у таблиці `inventory` (міграція a10e1d6b37fb).
+### Changed
+- CRUD для складу тепер працює з ціною.
+### Fixed
+- Internal Server Error при доступі до складу.

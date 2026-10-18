@@ -61,6 +61,8 @@ from backend.routers import users_router, journal_router, finance_router
 app.include_router(users_router.router)
 app.include_router(journal_router.router)
 app.include_router(finance_router.router)
+from backend.routers import inventory_router
+app.include_router(inventory_router.router)
 
 # -------------------------------
 # Імпорти авторизації
@@ -119,7 +121,6 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
 # Реєстрація CRUD для модулів
 # -------------------------------
 crud_routes(Account, AccountSchema, AccountCreate, AccountUpdate, "accounts")
-crud_routes(Inventory, InventorySchema, InventoryCreate, InventoryUpdate, "inventory")
 crud_routes(Sale, SaleSchema, SaleCreate, SaleUpdate, "sales")
 crud_routes(Legal, LegalSchema, LegalCreate, LegalUpdate, "legal")
 crud_routes(Purchase, PurchaseSchema, PurchaseCreate, PurchaseUpdate, "purchases")
