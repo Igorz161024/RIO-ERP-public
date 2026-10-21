@@ -864,7 +864,61 @@ feat(migrations): завершено міграції Alembic для всіх м
 ## [2026-10-18]
 ### Added
 - Поле `price` у таблиці `inventory` (міграція a10e1d6b37fb).
+
 ### Changed
 - CRUD для складу тепер працює з ціною.
+- Оновлено моделі та ендпоінти для узгодження з новою схемою.
+
 ### Fixed
-- Internal Server Error при доступі до складу.
+- Internal Server Error при доступі до складу через відсутність колонки `price`.
+
+### Notes
+- Перевірено повний цикл CRUD (POST, GET, PUT, DELETE) — працює стабільно.
+## [2026-10-21]
+### Added
+Додано кастомний роутер Sales.
+Додано ендпоінт GET /api/sales/{sale_id}.
+Додано JWT-захист для Sales API.
+
+### Changed
+Переведено Sales на архітектуру окремого роутера.
+Уніфіковано архітектуру Sales з Inventory.
+Оновлено Dockerfile та додано curl для healthcheck.
+
+### Fixed
+Усунено статус unhealthy для контейнерів rio_backend1 та rio_backend2.
+Виправлено Docker Health Check через відсутність curl.
+Відновлено коректну перевірку ендпоінтів /health.
+
+### Notes
+Перевірено логи запуску бекендів.
+Перевірено ендпоінти /health на портах 7000 і 7001.
+Виконано пересбірку контейнерів після оновлення Dockerfile.
+Підтверджено статус healthy для rio_backend1, rio_backend2, rio_erp_db та rio_node.
+Підтверджено реєстрацію Sales Router у Swagger.
+Підтверджено наявність CRUD-ендпоінтів Sales у Swagger.
+
+## Added
+- Додано кастомний роутер Sales із повним набором CRUD-операцій.
+- Додано ендпоінт GET /api/sales/{sale_id} для отримання окремого запису продажу.
+- Додано JWT-захист для Sales API.
+
+## Changed
+- Переведено модуль Sales з універсального механізму crud_routes() на окремий кастомний роутер.
+- Уніфіковано архітектуру Sales відповідно до архітектури Inventory.
+- Оновлено Dockerfile та додано curl для підтримки Docker Health Check.
+
+## Fixed
+- Усунено статус unhealthy для контейнерів rio_backend1 та rio_backend2.
+- Виправлено Docker Health Check через відсутність curl у backend-контейнерах.
+- Відновлено коректну перевірку ендпоінтів /health на портах 7000 та 7001.
+- Відновлено авторизацію користувачів для тестування API.
+
+## Notes
+- Перевірено логи запуску бекендів після інтеграції Sales Router.
+- Перевірено працездатність ендпоінтів /health.
+- Виконано пересбірку контейнерів після оновлення Dockerfile.
+- Підтверджено статус healthy для rio_backend1, rio_backend2, rio_erp_db та rio_node.
+- Підтверджено реєстрацію Sales Router у Swagger.
+- Виконано повне CRUD-тестування модуля Sales.
+- Підтверджено коректну роботу POST, GET, PUT та DELETE для Sales API.

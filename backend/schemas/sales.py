@@ -1,16 +1,16 @@
 from pydantic import BaseModel
 from typing import Optional
 
-# -------------------------------
-# Sale (схеми)
-# -------------------------------
+
 class SaleBase(BaseModel):
     client: str
     invoice: str
     amount: float
 
+
 class SaleCreate(SaleBase):
     pass
+
 
 class SaleUpdate(BaseModel):
     client: Optional[str] = None
