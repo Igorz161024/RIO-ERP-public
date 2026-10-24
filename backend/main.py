@@ -65,6 +65,9 @@ from backend.routers import inventory_router
 app.include_router(inventory_router.router)
 from backend.routers import sales_router
 app.include_router(sales_router.router)
+from backend.routers import purchases_router
+app.include_router(purchases_router.router)
+
 # -------------------------------
 # Імпорти авторизації
 # -------------------------------
@@ -123,7 +126,6 @@ def crud_routes(model, schema, create_schema, update_schema, prefix: str):
 # -------------------------------
 crud_routes(Account, AccountSchema, AccountCreate, AccountUpdate, "accounts")
 crud_routes(Legal, LegalSchema, LegalCreate, LegalUpdate, "legal")
-crud_routes(Purchase, PurchaseSchema, PurchaseCreate, PurchaseUpdate, "purchases")
 crud_routes(EntryLine, EntryLineSchema, EntryLineCreate, EntryLineUpdate, "entry_lines")
 
 # -------------------------------

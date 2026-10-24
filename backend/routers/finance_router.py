@@ -77,8 +77,9 @@ def get_balance(
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    debit = db.query(func.sum(Finance.debit)).filter(Finance.account == account.code).scalar() or 0
-    credit = db.query(func.sum(Finance.credit)).filter(Finance.account == account.code).scalar() or 0
+    debit = db.query(func.sum(Finance.debit)).filter(Finance.account == account.name).scalar() or 0
+
+    credit = db.query(func.sum(Finance.credit)).filter(Finance.account == account.name).scalar() or 0
     return {"account_id": account_id, "balance": debit - credit}
 
 # --- Додати проводку ---

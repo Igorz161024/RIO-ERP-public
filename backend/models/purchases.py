@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, String, Float
 from backend.database import Base
 
+
 class Purchase(Base):
     __tablename__ = "purchases"
-    __table_args__ = {"extend_existing": True}  # дозволяє уникнути дублювання при повторному визначенні
+    __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
     supplier = Column(String, nullable=False)

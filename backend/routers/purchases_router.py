@@ -1,44 +1,105 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from backend.database import get_db
 from backend.models.purchases import Purchase
-from backend.schemas.purchases import PurchaseSchema, PurchaseCreate, PurchaseUpdate
+from backend.schemas.purchases import (
+    PurchaseSchema,
+    PurchaseCreate,
+    PurchaseUpdate,
+)
 from backend.auth import get_current_user
+
 
 router = APIRouter(
     prefix="/api/purchases",
     tags=["Purchases"]
 )
 
-# --- CRUD для Purchases ---
+
 @router.get("/", response_model=list[PurchaseSchema])
-def read_purchases(current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_purchases(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     return db.query(Purchase).all()
 
+
+@router.get("/{item_id}", response_model=PurchaseSchema)
+def get_purchase(
+    item_id: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    item = db.query(Purchase).filter(Purchase.id == item_id).first()
+
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail="Запис не знайдено"
+        )
+
+    return item
+
+
 @router.post("/", response_model=PurchaseSchema)
-def create_purchase(entry: PurchaseCreate, current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    new_entry = Purchase(**entry.dict())
-    db.add(new_entry)
-    db.commit()
-    db.refresh(new_entry)
-    return new_entry
+def create_purchase(
+    entry: PurchaseCreate,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    new_item = Purchase(**entry.dict())
 
-@router.put("/{purchase_id}", response_model=PurchaseSchema)
-def update_purchase(purchase_id: int, entry: PurchaseUpdate, current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    db_entry = db.query(Purchase).filter(Purchase.id == purchase_id).first()
-    if not db_entry:
-        raise HTTPException(status_code=404, detail="Запис не знайдено")
-    for key, value in entry.dict(exclude_unset=True).items():
-        setattr(db_entry, key, value)
+    db.add(new_item)
     db.commit()
-    db.refresh(db_entry)
-    return db_entry
+    db.refresh(new_item)
 
-@router.delete("/{purchase_id}")
-def delete_purchase(purchase_id: int, current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    db_entry = db.query(Purchase).filter(Purchase.id == purchase_id).first()
-    if not db_entry:
-        raise HTTPException(status_code=404, detail="Запис не знайдено")
-    db.delete(db_entry)
+    return new_item
+
+
+@router.put("/{item_id}", response_model=PurchaseSchema)
+def update_purchase(
+    item_id: int,
+    entry: PurchaseUpdate,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_item = db.query(Purchase).filter(Purchase.id == item_id).first()
+
+    if not db_item:
+        raise HTTPException(
+            status_code=404,
+            detail="Запис не знайдено"
+        )
+
+    update_data = entry.dict(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(db_item, field, value)
+
     db.commit()
-    return {"detail": "Запис видалено"}
+    db.refresh(db_item)
+
+    return db_item
+
+
+@router.delete("/{item_id}")
+def delete_purchase(
+    item_id: int,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_item = db.query(Purchase).filter(Purchase.id == item_id).first()
+
+    if not db_item:
+        raise HTTPException(
+            status_code=404,
+            detail="Запис не знайдено"
+        )
+
+    db.delete(db_item)
+    db.commit()
+
+    return {
+        "detail": f"Запис {item_id} видалено"
+    }
