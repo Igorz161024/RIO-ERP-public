@@ -171,3 +171,7 @@ schemas_structure.txt
 users_router.py
 *.swp
 *.swo
+# JWT tokens
+token.sh
+*.token
+token.env
