@@ -4,7 +4,9 @@ from typing import Optional
 
 class SaleBase(BaseModel):
     client: str
-    invoice: str
+    product: str
+    quantity: int
+    price: float
     amount: float
 
 
@@ -14,8 +16,11 @@ class SaleCreate(SaleBase):
 
 class SaleUpdate(BaseModel):
     client: Optional[str] = None
-    invoice: Optional[str] = None
+    product: Optional[str] = None
+    quantity: Optional[int] = None
+    price: Optional[float] = None
     amount: Optional[float] = None
+
 
 class SaleSchema(SaleBase):
     id: int

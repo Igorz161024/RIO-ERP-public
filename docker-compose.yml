@@ -101,7 +101,7 @@ services:
     ports:
       - "3001:80"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:80 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -122,5 +122,3 @@ networks:
 
 volumes:
   rio_db_data:
-
-

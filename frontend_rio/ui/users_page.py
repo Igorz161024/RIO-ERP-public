@@ -1,5 +1,5 @@
 from rio import PageView, Table, AutoForm, TextInput
-from services.users import get_users, add_user_entry, delete_user_entry
+from services.users import get_users, add_user_entry, delete_user
 from ui.messages import show_error, show_info, show_success, show_warning
 
 # 🔹 Допустимі ролі користувачів
@@ -34,7 +34,7 @@ def users_page(page: PageView):
                 # попередження перед видаленням
                 show_warning(page, f"Ви дійсно хочете видалити користувача {row['username']}?")
                 try:
-                    delete_user_entry(row["id"])
+                    delete_user(row["id"])
                     show_success(page, "Користувача успішно видалено")
                 except Exception as e:
                     show_error(page, f"Помилка при видаленні: {str(e)}")

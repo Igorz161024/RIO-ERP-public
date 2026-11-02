@@ -1,15 +1,21 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from backend.auth import get_current_user
 from backend.database import get_db
+
 from backend.models.purchases import Purchase
+from backend.models.inventory import Inventory
+from backend.models.journal import Journal
+from backend.models.entry_lines import EntryLine
+
 from backend.schemas.purchases import (
     PurchaseSchema,
     PurchaseCreate,
     PurchaseUpdate,
 )
-from backend.auth import get_current_user
-
 
 router = APIRouter(
     prefix="/api/purchases",
@@ -48,13 +54,86 @@ def create_purchase(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    new_item = Purchase(**entry.dict())
+    # -------------------------
+    # 1. Створення Purchase
+    # -------------------------
 
-    db.add(new_item)
+    new_purchase = Purchase(
+        supplier=entry.supplier,
+        country=entry.country,
+        product=entry.product,
+        quantity=entry.quantity,
+        price=entry.price,
+        amount=entry.amount
+    )
+
+    db.add(new_purchase)
+    db.flush()
+
+    # -------------------------
+    # 2. Створення Inventory
+    # -------------------------
+
+    inventory = Inventory(
+        product=entry.product,
+        quantity=entry.quantity,
+        batch=f"PUR-{new_purchase.id}",
+        price=entry.price
+    )
+
+    db.add(inventory)
+
+    # -------------------------
+    # 3. Створення Journal
+    # -------------------------
+
+    journal = Journal(
+        date=date.today(),
+        operation="Purchase",
+        status="Completed",
+        amount=entry.amount,
+        account_id=1
+    )
+
+    db.add(journal)
+    db.flush()
+
+    # -------------------------
+    # 4. Дебет
+    # Дт Tovary
+    # -------------------------
+
+    debit_line = EntryLine(
+        journal_id=journal.id,
+        account_id=1,
+        debit=entry.amount,
+        credit=0
+    )
+
+    db.add(debit_line)
+
+    # -------------------------
+    # 5. Кредит
+    # Кт Postachalnyky
+    # -------------------------
+
+    credit_line = EntryLine(
+        journal_id=journal.id,
+        account_id=2,
+        debit=0,
+        credit=entry.amount
+    )
+
+    db.add(credit_line)
+
+    # -------------------------
+    # 6. Збереження
+    # -------------------------
+
     db.commit()
-    db.refresh(new_item)
+    db.refresh(new_purchase)
 
-    return new_item
+    return new_purchase
 
 
 @router.put("/{item_id}", response_model=PurchaseSchema)

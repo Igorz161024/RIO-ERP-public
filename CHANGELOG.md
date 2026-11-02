@@ -1015,3 +1015,379 @@ Notes
 - Директорію backend/modules ідентифіковано як спадщину попередньої архітектури проєкту.
 - Встановлено, що поточна архітектура RIO-ERP повністю базується на routers, models, schemas та SQLAlchemy ORM.
 - Автоматичне створення Journal-записів під час створення Sales-записів наразі не реалізоване та може бути розглянуте як перспективний напрям розвитку системи.
+## 2026-10-28
+
+### Added
+- Додано кастомний FastAPI роутер для модуля Accounts (accounts_router.py).
+- Додано інтеграцію кастомного роутера для модуля EntryLine.
+- Додано окремі Pydantic-схеми EntryLine у backend/schemas/entry_lines.py.
+- Додано реєстрацію роутерів Accounts, Legal та EntryLine у backend/main.py.
+- Додано повне REST API покриття CRUD-операцій для EntryLine через архітектуру кастомних роутерів.
+
+### Changed
+- Змінено архітектуру бекенду з комбінованого підходу CRUD-генераторів та кастомних роутерів на єдину архітектуру кастомних роутерів.
+- Переведено модулі Account, Legal та EntryLine на окремі FastAPI роутери замість використання crud_routes().
+- Оновлено CRUD-ендпоїнти EntryLine з додаванням JWT-аутентифікації через get_current_user().
+- Оновлено документацію та архітектурний опис фінансового модуля відповідно до взаємодії Finance, Journal, Accounts та EntryLine.
+- Оновлено структуру дипломної документації шляхом додавання окремих підрозділів для роутерів Accounts та EntryLine.
+
+### Fixed
+- Виправлено ImportError, спричинений некоректним імпортом роутера EntryLine у backend/main.py.
+- Виправлено невідповідність схем EntryLine шляхом заміни застарілої структури description/amount на journal_id/account_id/debit/credit.
+- Виправлено сумісність між ORM-моделлю EntryLine, Pydantic-схемами та шаром роутерів.
+- Виправлено проблеми запуску бекенду після міграції з CRUD-генераторів на кастомні роутери.
+- Виправлено узгодженість API-маршрутизації між модулями Accounts, Legal та EntryLine.
+
+### Notes
+- Модулі Accounts, Legal та EntryLine тепер використовують той самий архітектурний шаблон, що й Journal, Finance, Inventory, Purchases, Sales та Users.
+- Бекенд успішно запускається після переходу на уніфіковану архітектуру роутерів.
+- Docker-сервіси запускаються успішно; залишилися лише перевірки healthcheck, що стосуються конфігурації контейнерів, а не реалізації роутерів.
+- Архітектура фінансової підсистеми тепер узгоджена з подальшим розвитком ERP-системи на основі взаємодії Journal, Accounts, EntryLine та Finance.
+## 2026-10-29
+
+### Added
+- Додано оновлений опис модуля Journal (п.2.4.2) відповідно до поточної архітектури ERP-системи.
+- Додано опис зв’язку між Journal та EntryLine для реалізації принципу подвійного запису.
+- Додано оновлений опис Journal_page (п.2.4.19) з урахуванням інтеграції з Accounts та EntryLine.
+- Додано архітектурний опис ролі Journal як заголовка бухгалтерської операції для групування бухгалтерських проведень.
+
+### Changed
+- Видалено застарілу реалізацію crud_routes() з backend/main.py.
+- Завершено перехід від змішаної CRUD-архітектури до повністю кастомних FastAPI роутерів.
+- Видалено невикористовувані імпорти схем після міграції на кастомну router-архітектуру.
+- Видалено невикористовувані імпорти моделей, що більше не використовуються у main.py.
+- Повністю перероблено текст розділу 2.4.10 «Роутер Journal» відповідно до реального коду FastAPI, SQLAlchemy та JWT-автентифікації.
+- Оновлено опис модуля Journal відповідно до поточних зв’язків із Accounts та EntryLine.
+
+### Fixed
+- Усунуто архітектурну невідповідність між реалізованими роутерами та залишками legacy CRUD-коду.
+- Усунуто розбіжності між текстом диплома та фактичною реалізацією Journal Router.
+- Видалено застарілі згадки про поле comment у модулі Journal.
+- Підтверджено відповідність ORM-моделі Journal структурі таблиці PostgreSQL.
+
+### Notes
+- Бекенд повністю використовує окремі FastAPI роутери для всіх ERP-модулів.
+- Legacy CRUD Generator повністю виведено з проєкту.
+- Підтверджено відповідність між Journal Model, Journal Schema, Journal Router та таблицею journal у PostgreSQL.
+- Journal тепер розглядається як заголовок господарської операції, до якого прив’язуються рядки бухгалтерських проведень EntryLine.
+- Підготовлено основу для автоматичного формування бухгалтерських проводок між модулями Purchases, Sales, Inventory, Accounts та Finance.
+## 2026-10-29
+
+### Changed
+- Оновлено Inventory Page відповідно до поточної структури Inventory Model.
+- Узгоджено поля frontend Inventory з ORM-моделлю та PostgreSQL таблицею inventory.
+- Замінено застарілі поля name та category на product та batch.
+- Додано підтримку поля price у формі створення складських записів.
+
+### Fixed
+- Усунуто невідповідність між Inventory Page та Inventory Router.
+- Усунуто розбіжності між Inventory Schema, Inventory Model та PostgreSQL таблицею inventory.
+- Виявлено та локалізовано помилку Docker multi-stage build, через яку залежності Python не потрапляли до runtime-контейнера.
+
+### Notes
+- Inventory Page приведено у відповідність до структури PostgreSQL: product, quantity, batch, price.
+- Підтверджено відповідність між Inventory Model та таблицею inventory у PostgreSQL.
+- Підготовлено основу для подальшої інтеграції Inventory з Journal, EntryLine, Accounts та Finance.
+## 2026-10-29
+
+### Fixed
+- Виправлено конфігурацію Docker frontend image для коректного встановлення Python-залежностей.
+- Виявлено некоректні імпорти frontend_rio.services у фронтенд-модулях.
+- Розпочато приведення імпортів фронтенду до єдиної структури services.* відповідно до архітектури RIO-ERP.
+
+### Notes
+- Помилка запуску фронтенду після виправлення Dockerfile виявила застарілі абсолютні імпорти frontend_rio.services.
+- Проблема не пов’язана з Inventory, Finance або Accounts модулями.
+- Підтверджено працездатність backend-контурів Journal, Accounts, EntryLine та Finance.
+## 2026-10-29
+
+### Changed
+- Оновлено Users Page відповідно до актуального сервісного шару frontend.
+- Приведено імпорти users_page.py у відповідність до services/users.py.
+
+### Fixed
+- Усунуто ImportError, пов’язаний із неіснуючою функцією delete_user_entry().
+- Замінено використання delete_user_entry() на актуальну функцію delete_user().
+- Відновлено сумісність між Users Page та Users Service.
+
+### Notes
+- Фронтенд успішно проходить етап перевірки Users Page.
+- Триває аудит та усунення застарілих імпортів і невідповідностей між UI та сервісами RIO‑ERP.
+## 2026-10-29
+
+### Added
+- Додано модуль Accounts Page для роботи з бухгалтерськими рахунками.
+- Додано відображення бухгалтерських рахунків у головному меню RIO‑ERP.
+- Додано форму створення рахунків через frontend.
+
+### Changed
+- Оновлено Inventory Page відповідно до поточної структури Inventory Model.
+- Узгоджено Inventory Page, Inventory Router та PostgreSQL таблицю inventory.
+- Замінено застарілі поля name/category на product/batch.
+- Оновлено main.py для інтеграції Accounts Page.
+
+### Fixed
+- Виправлено Dockerfile фронтенду для коректного встановлення Python‑залежностей.
+- Усунуто помилку ModuleNotFoundError для бібліотеки httpx.
+- Усунуто застарілі імпорти frontend_rio.* у frontend модулях.
+- Виправлено імпорти sales_page.py.
+- Виправлено імпорти users_page.py.
+- Усунуто невідповідність між users_page.py та services/users.py.
+- Переведено accounts_page.py до поточної архітектури RIO‑ERP на базі функцій page().
+- Відновлено запуск контейнера rio_frontend.
+
+### Notes
+- Усі основні контейнери RIO‑ERP успішно запускаються.
+- Frontend успішно проходить ініціалізацію Uvicorn без traceback.
+- Inventory приведено до структури PostgreSQL: product, quantity, batch, price.
+- Завершено аудит фінансового контуру: Journal → EntryLine → Accounts → Finance.
+## 2026-10-30
+
+### Added
+- Розширено структуру модуля Purchases для підтримки ERP-бізнес-процесів.
+- До таблиці purchases додано поля product, quantity та price.
+- Створено базові бухгалтерські рахунки Tovary та Postachalnyky для автоматичного формування проводок.
+- Реалізовано підготовку бізнес-ланцюжка Purchases → Inventory → Journal → EntryLine.
+- Додано автоматичне формування складського запису Inventory під час створення закупівлі.
+- Додано автоматичне створення запису Journal під час реєстрації закупівлі.
+- Додано автоматичне формування бухгалтерських проведень EntryLine за схемою:
+  - Debit: Tovary;
+  - Credit: Postachalnyky.
+
+### Changed
+- Оновлено ORM-модель Purchase відповідно до нової ERP-архітектури.
+- Оновлено Pydantic-схеми PurchaseCreate, PurchaseUpdate та PurchaseSchema.
+- Перероблено purchases_router.py для переходу від простого CRUD до елементів ERP-бізнес-логіки.
+- Оновлено purchases_page.py відповідно до нової структури закупівель.
+- Замінено форму закупівлі з полів supplier, country, amount на:
+  - supplier;
+  - country;
+  - product;
+  - quantity;
+  - price;
+  - amount.
+- Реалізовано автоматичний розрахунок amount на основі quantity та price.
+- Приведено frontend та backend модуля Purchases до єдиної структури даних.
+- Переведено всі Pydantic-схеми проєкту на формат from_attributes = True відповідно до вимог Pydantic V2.
+
+### Fixed
+- Усунуто невідповідність між таблицею purchases та ORM-моделлю Purchase.
+- Усунуто невідповідність між бекендом Purchases та frontend Purchases Page.
+- Усунуто застаріле використання orm_mode у всіх схемах backend/schemas.
+- Усунуто розбіжності між структурою Inventory ORM та PostgreSQL таблицею inventory.
+- Підтверджено коректність імпортів моделей Inventory, Journal, EntryLine та Purchase.
+- Підтверджено коректне завантаження purchases_router після інтеграції ERP-логіки.
+
+### Notes
+- Бекенд успішно запускається після оновлення структури закупівель.
+- purchases_router успішно імпортується під час старту FastAPI.
+- Нові моделі та схеми не спричиняють аварійного завершення контейнера.
+- ERP-код автоматичного формування закупівельного контуру успішно завантажується під час запуску сервера.
+- Контейнер rio_backend1 успішно проходить healthcheck після внесених змін.
+- Підготовлено основу для автоматичного бухгалтерського контуру:
+  Purchases → Inventory → Journal → EntryLine → Accounts → Finance.
+- Наступний етап перевірки: тестове створення закупівлі та контроль автоматичного створення записів у таблицях inventory, journal та entry_lines.
+## 2026-10-30
+
+### Added
+- Додано утиліту curl до контейнера rio_frontend для коректної роботи Docker Healthcheck.
+- Додано автоматичну перевірку доступності Frontend через HTTP‑запит до кореневого маршруту застосунку.
+- Реалізовано перевірку працездатності Frontend контейнера через відповідь:
+  {"message":"RIO Frontend server is running"}.
+
+### Changed
+- Оновлено Dockerfile модуля frontend_rio із встановленням пакета curl.
+- Перебудовано Docker‑образ rio_frontend після внесення змін до Dockerfile.
+- Переналаштовано Healthcheck контейнера rio_frontend з неіснуючого маршруту /health на кореневий маршрут /.
+- Виконано повне пересоздання контейнерів через docker compose up -d --force-recreate.
+- Актуалізовано конфігурацію docker-compose.yml для коректної перевірки стану сервісів.
+
+### Fixed
+- Усунуто помилку Docker Healthcheck:
+  /bin/sh: 1: curl: not found.
+- Усунуто проблему постійного статусу unhealthy для контейнера rio_frontend.
+- Усунуто некоректну перевірку маршруту /health, який був відсутній у Frontend.
+- Підтверджено успішне проходження перевірки Healthcheck контейнером rio_frontend.
+- Відновлено статус healthy для Frontend після перебудови образу.
+
+### Notes
+- Підтверджено наявність curl у контейнері rio_frontend:
+  /usr/bin/curl.
+- Підтверджено коректну відповідь Frontend:
+  {"message":"RIO Frontend server is running"}.
+- Підтверджено коректний запуск усіх основних контейнерів після пересоздання.
+- Архітектура ERP успішно переведена на нову схему закупівель:
+  Purchases → Inventory → Journal → EntryLine.
+- Підготовлено середовище для тестування автоматичного бухгалтерського контуру після створення закупівлі.
+## 2026-11-01
+
+Added
+- Виявлено наявність двох окремих PostgreSQL контейнерів: erp_db та rio_erp_db.
+- Проведено аналіз структури таблиць purchases, inventory, journal та entry_lines.
+- Підтверджено архітектурне рішення: усі ERP-проєкти використовують одну спільну PostgreSQL БД через контейнер erp_db.
+- Контейнер erp_db підключено до мережі rio-erp_rio_erp_network.
+
+Changed
+- DATABASE_URL у RIO-ERP змінено з rio_erp_db на erp_db.
+- DB_HOST у backend/database.py змінено з rio_erp_db на erp_db.
+- Контейнери rio_backend1 та rio_backend2 пересоздані з новою конфігурацією підключення до БД.
+- Обидва бекенди RIO переведені на роботу з PostgreSQL контейнером erp_db.
+- Підтверджено підключення backend1 та backend2 до erp_db через змінні середовища.
+
+Fixed
+- Усунуто підключення RIO-ERP до застарілої БД rio_erp_db.
+- Усунуто розсинхронізацію між моделями Purchase та структурою таблиці purchases.
+- Підтверджено використання актуальної структури БД erp_diplom через контейнер erp_db.
+- Endpoint /health успішно працює на портах 7000 та 7001 після зміни конфігурації.
+
+Notes
+- Зафіксовано архітектурне правило: Docker Container = erp_db → PostgreSQL → Database = erp_diplom.
+- Усі поточні та майбутні ERP-проєкти повинні використовувати одну спільну PostgreSQL БД через контейнер erp_db.
+- Тест створення Purchase більше не впирається у помилку "column product does not exist".
+- Поточна причина невдалого POST запиту: недійсний JWT токен (Invalid token).
+- Наступний етап: отримання нового JWT токена та повторна перевірка ланцюжка Purchase → Inventory → Journal → EntryLine.
+## 2026-11-02
+
+Added
+- Завершено перевірку нової ERP-архітектури Purchase → Inventory → Journal → EntryLine.
+- Підтверджено автоматичне створення Inventory після створення Purchase.
+- Підтверджено автоматичне створення Journal після створення Purchase.
+- Підтверджено автоматичне створення проводок EntryLine (Debit/Credit).
+- Підтверджено роботу рахунків Tovary та Postachalnyky через автоматичні бухгалтерські записи.
+
+Changed
+- RIO-ERP переключено з контейнера rio_erp_db на основний PostgreSQL контейнер erp_db.
+- DATABASE_URL змінено на використання erp_db.
+- Backend1 та Backend2 пересоздані з новими параметрами підключення.
+- Контейнер erp_db підключено до мережі RIO-ERP.
+
+Fixed
+- Усунуто помилку підключення до застарілої БД rio_erp_db.
+- Усунуто помилку "column product does not exist".
+- Усунуто помилку ResponseValidationError для PurchaseSchema.
+- Усунуто проблему читання старих записів purchases з NULL-полями.
+
+Notes
+- Зафіксовано архітектурне правило: Docker Container = erp_db → PostgreSQL → Database = erp_diplom.
+- Усі ERP-проєкти використовують одну спільну PostgreSQL БД через контейнер erp_db.
+- Перевіркою підтверджено повний цикл:
+  Purchase → Inventory → Journal → EntryLine.
+- Створення закупівлі Laptop на суму 1000 успішно сформувало складський запис, бухгалтерську операцію та подвійний запис у журналі проводок.
+Changed
+- Підтверджено коректне підключення rio_backend1 до контейнера PostgreSQL erp_db.
+- Підтверджено коректне підключення rio_backend2 до контейнера PostgreSQL erp_db.
+- Обидва бекенди RIO-ERP успішно переведені з rio_erp_db на erp_db.
+- Контейнер erp_db додатково підключено до мережі rio-erp_rio_erp_network для забезпечення доступу сервісів RIO-ERP до спільної БД.
+
+Fixed
+- Усунуто помилку "column product does not exist" у модулі Purchases.
+- Усунуто помилку ResponseValidationError для PurchaseSchema через старі записи з NULL у полях product, quantity та price.
+- Усунуто помилку читання таблиці purchases після переходу на нову ERP-архітектуру.
+- Відновлено коректну роботу GET /api/purchases/.
+- Відновлено коректну роботу POST /api/purchases/.
+
+Added
+- Підтверджено фактичну роботу повного ERP-ланцюжка:
+  Purchase → Inventory → Journal → EntryLine.
+- Підтверджено автоматичне створення складського запису після створення Purchase.
+- Підтверджено автоматичне створення бухгалтерської операції Journal після створення Purchase.
+- Підтверджено автоматичне створення подвійного бухгалтерського запису:
+  Дт Tovary → Кт Postachalnyky.
+- Успішно створено тестову закупівлю Laptop (10 шт. по 100) на суму 1000.
+- У таблиці Inventory автоматично створено запис з партією PUR-3.
+- У таблиці Journal автоматично створено операцію Purchase на суму 1000.
+- У таблиці EntryLine автоматично створено Debit та Credit проводки.
+
+Notes
+- Підтверджено цільову архітектуру ERP-системи:
+  Docker Container → erp_db
+  PostgreSQL Database → erp_diplom
+  ERP Tables → purchases, inventory, journal, entry_lines, accounts та інші.
+- Зафіксовано правило: усі ERP-проєкти працюють через один контейнер PostgreSQL erp_db.
+- Зафіксовано правило: після відкриття нового WSL-вікна необхідно виконувати:
+
+  source /mnt/c/Users/igorz/Projects/RIO-ERP/token.sh
+
+  оскільки змінна середовища $TOKEN не зберігається між сесіями WSL.
+- Перше повне тестування нової ERP-архітектури Purchase → Inventory → Journal → EntryLine завершено успішно.
+Changed
+- Завершено перевірку модуля Sales після переходу на нову ERP-архітектуру.
+- Додано та перевірено бухгалтерські рахунки:
+  3 | Pokupci
+  4 | Dohody
+- Підтверджено використання рахунків Pokupci та Dohody у Sales Router.
+
+Added
+- Успішно виконано тестовий продаж:
+  Client: Test Client
+  Product: Laptop
+  Quantity: 2
+  Price: 150
+  Amount: 300
+- Підтверджено автоматичне створення запису Sales після виконання POST /api/sales/.
+- Підтверджено автоматичне створення запису Journal з операцією Sale.
+- Підтверджено автоматичне створення проводки Дт Pokupci.
+- Підтверджено автоматичне створення проводки Кт Dohody.
+- Підтверджено коректний запис продажу в таблицю sales.
+
+Fixed
+- Усунуто помилку відсутності бухгалтерських рахунків Pokupci та Dohody для ERP-логіки продажів.
+- Підтверджено коректну роботу зв'язків Sales → Journal → EntryLine.
+
+Notes
+- Успішно підтверджено повний цикл закупівлі:
+
+  Purchase
+  ↓
+  Inventory
+  ↓
+  Journal
+  ↓
+  EntryLine
+
+- Успішно підтверджено повний цикл продажу:
+
+  Sales
+  ↓
+  Inventory
+  ↓
+  Journal
+  ↓
+  EntryLine
+
+- Під час тестування продажу створено Journal:
+  id=3
+  operation=Sale
+  amount=300
+
+- Під час тестування продажу створено бухгалтерські проводки:
+  Дт Pokupci = 300
+  Кт Dohody = 300
+
+- Підтверджено коректне списання товару зі складу:
+  Laptop: 10 → 8 шт.
+
+- Ключова ERP-логіка руху товару та бухгалтерських проведень успішно працює через:
+  erp_db → erp_diplom.
+
+- Наступний етап тестування:
+  Finance → перевірка розрахунку балансів через EntryLine.
+  ERP UI → перевірка відображення Purchases, Sales, Inventory та Finance у веб-інтерфейсі.
+  Added
+- Підтверджено роботу фінансової логіки через таблицю EntryLine.
+- Виконано перевірку бухгалтерських рахунків Tovary, Postachalnyky, Pokupci та Dohody.
+- Підтверджено автоматичне формування фінансових балансів після Purchase та Sales операцій.
+
+Fixed
+- Завершено перевірку переходу Finance на модель SUM(Debit) - SUM(Credit).
+- Усунуто залежність фінансової логіки від поля accounts.balance як основного джерела розрахунків.
+
+Notes
+- Фактичні баланси рахунків тепер визначаються через EntryLine:
+  Tovary = 1000
+  Postachalnyky = -1000
+  Pokupci = 300
+  Dohody = -300
+- Перевірку Purchase → Inventory → Journal → EntryLine завершено успішно.
+- Перевірку Sales → Inventory → Journal → EntryLine завершено успішно.
+- Наступний етап: тестування ERP UI (Purchases, Sales, Inventory, Finance).
