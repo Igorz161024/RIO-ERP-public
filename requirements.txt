@@ -6,3 +6,8 @@ httpx
 pillow
 psycopg2-binary
 sqlalchemy
+passlib[bcrypt]
+python-jose
+python-dotenv
+python-multipart
+bcrypt==4.0.1
