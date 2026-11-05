@@ -8,8 +8,7 @@ def get_journal():
     """Отримати список усіх записів журналу"""
     response = httpx.get(BASE_URL, headers=HEADERS)
     response.raise_for_status()
-    data = response.json()
-    return data.get("data", data)
+    return response.json()
 
 def add_journal_entry(entry: dict):
     """Створити новий запис у журналі"""

@@ -1446,3 +1446,84 @@ Notes
 - PostgreSQL контейнер працює у стані healthy.
 - Node gateway працює у стані healthy.
 - Основний залишковий напрям перевірки — контейнер rio_frontend та доступність інтерфейсу через http://localhost:3001.
+## 2026-11-04
+
+Added
+- Розпочато міграцію frontend_rio на API rio-ui 0.12.4.
+- Створено тестову сторінку JournalPage через ComponentPage.
+
+Changed
+- Замінено стару модель сторінок на ComponentPage для сумісності з rio-ui 0.12.4.
+- main.py переведено на використання rio.ComponentPage замість прямого додавання Python-функцій у app.pages.
+
+Fixed
+- Усунуто помилку AttributeError: 'function' object has no attribute '_url_pattern'.
+- Усунуто помилку AttributeError: type object 'JournalPage' has no attribute '_url_pattern'.
+
+Notes
+- Підтверджено, що frontend-код був написаний під застарілий API Rio на базі PageView.
+- Підтверджено, що встановлена версія rio-ui 0.12.4 використовує ComponentPage та Component API.
+- Виявлено, що реальна команда запуску контейнера відрізняється від CMD у Dockerfile.
+- Підтверджено, що контейнер rio_frontend запускається через docker-compose конфігурацію, а не через Dockerfile CMD.
+- Встановлено, що фактична команда запуску контейнера: rio run --host 0.0.0.0 --port 8000.
+- Розпочато діагностику параметрів запуску Rio та мережевої доступності frontend-контейнера.
+## 2026-11-05
+Added
+- Підтверджено успішний запуск Rio Frontend через localhost:3001.
+- Підтверджено відображення JournalPage у браузері через ComponentPage API.
+
+Changed
+- Завершено міграцію модуля Journal на архітектуру rio-ui 0.12.4.
+
+Fixed
+- Усунуто проблему доступу до frontend через браузер.
+- Підтверджено коректну роботу Docker port mapping 3001 -> 8000.
+
+Notes
+- JournalPage відкривається у браузері та коректно рендериться через Rio.
+- Dev Tools Rio доступні та підтверджують роботу ComponentPage.
+- Наступний етап: інтеграція JournalPage з Backend API та БД.
+Added
+- Реалізовано перше підключення Journal модуля до Backend API через Service Layer.
+- Підтверджено отримання реальних даних журналу з PostgreSQL через endpoint /api/journal/.
+- Підтверджено коректну роботу JWT-авторизації між Rio Frontend та Backend API.
+- Підтверджено мережеву взаємодію між контейнерами rio_frontend та rio_backend1 через Docker DNS.
+
+Changed
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\config.py для використання контейнерної адреси Backend API замість localhost.
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\services\journal.py для коректної обробки JSON-відповіді у форматі list.
+- Тимчасовий JournalPage переведено з тестової заглушки на використання реального API журналу.
+
+Fixed
+- Усунуто помилку httpx.ConnectError: [Errno 111] Connection refused між rio_frontend та Backend API.
+- Усунуто проблему використання адреси 127.0.0.1 всередині контейнера rio_frontend.
+- Усунуто помилку AttributeError: 'list' object has no attribute 'get' у сервісі журналу.
+- Підтверджено успішне отримання записів журналу через get_journal().
+
+Notes
+- Rio 0.12.4 успішно працює з ComponentPage архітектурою.
+- JournalPage успішно звертається до Service Layer.
+- Service Layer успішно звертається до Backend API.
+- Backend API успішно повертає дані з PostgreSQL.
+- У браузері підтверджено отримання трьох записів журналу (Records: 3).
+- Ланцюжок Frontend → Service → Backend → Database → Frontend повністю перевірений та працює.
+- Наступний етап: заміна тестового лічильника Records на повноцінне відображення записів журналу у таблиці Rio.
+Added
+- Реалізовано перше відображення записів Journal у табличному форматі.
+- Створено базовий шаблон інтеграції Rio UI → Service Layer → Backend API → PostgreSQL.
+- Підтверджено відображення полів ID, Date, Operation, Status, Amount та Account ID.
+
+Changed
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\ui\journal_page.py для відображення записів журналу у табличному вигляді.
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\config.py для використання внутрішньої Docker-адреси rio_backend1.
+
+Fixed
+- Усунуто помилку httpx.ConnectError: [Errno 111] Connection refused між фронтендом та бекендом.
+- Усунуто помилку AttributeError: 'list' object has no attribute 'get' у frontend_rio\services\journal.py.
+- Відновлено коректне отримання даних Journal API через Service Layer.
+
+Notes
+- Journal став першим повністю інтегрованим модулем Rio Frontend.
+- Перевірено повний ланцюжок Frontend → Service → Backend → PostgreSQL.
+- Отримано та відображено реальні записи журналу з БД.
+- Поточна реалізація є базовим шаблоном для міграції інших ERP-модулів.
