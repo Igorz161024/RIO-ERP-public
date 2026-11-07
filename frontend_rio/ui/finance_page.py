@@ -1,75 +1,57 @@
-from rio import PageView, Table, AutoForm, TextInput, NumberInput
-from services.finance import get_finance, add_finance_entry, delete_finance_entry
-from ui.messages import show_error, show_info, show_success, show_warning
-import datetime
+import rio
 
-# 🔹 Допустимі категорії витрат/доходів
-ALLOWED_CATEGORIES = ["income", "expense", "investment", "loan"]
+from services.finance import get_finance
 
-# 🔹 Допоміжна функція для перевірки введених даних
-def validate_finance_entry(date, category, amount):
-    if not date.strip():
-        return False, "Дата не може бути порожньою"
-    try:
-        datetime.datetime.strptime(date, "%Y-%m-%d")
-    except ValueError:
-        return False, "Невірний формат дати (YYYY-MM-DD)"
 
-    if category not in ALLOWED_CATEGORIES:
-        return False, f"Недопустима категорія. Дозволені: {', '.join(ALLOWED_CATEGORIES)}"
+@rio.page(
+    name="Finance",
+    url_segment="finance"
+)
+class FinancePage(rio.Component):
 
-    if not isinstance(amount, (int, float)):
-        return False, "Сума має бути числом"
-    if amount <= 0:
-        return False, "Сума має бути > 0"
+    def build(self) -> rio.Component:
 
-    return True, "OK"
+        entries = get_finance()
 
-# 🔹 Основна функція сторінки
-def finance_page(page: PageView):
-    # показ таблиці з бекенду
-    data = get_finance()
-    if not data:
-        show_info(page, "Немає фінансових записів")
-    else:
-        table = Table(
-            data,
-            columns=["id", "date", "category", "amount"],
-            actions=[{"label": "Видалити", "name": "delete_finance"}]
+        rows = [
+            rio.Text(
+                "ID | Date | Account | Debit | Credit | Balance",
+                style="heading3"
+            ),
+            rio.Text(
+                "[ Refresh ] [ Add Entry ] [ Edit Entry ] [ Delete Entry ]"
+            ),
+            rio.Text(
+                "-" * 70
+            ),
+        ]
+
+        for entry in entries:
+
+            rows.append(
+                rio.Text(
+                    f"{entry['id']} | "
+                    f"{entry['date']} | "
+                    f"{entry['account']} | "
+                    f"{entry['debit']} | "
+                    f"{entry['credit']} | "
+                    f"{entry['balance']}"
+                )
+            )
+
+        return rio.Column(
+            rio.Text(
+                "Finance",
+                style="heading2"
+            ),
+            rio.Text(
+                f"Records: {len(entries)}"
+            ),
+            rio.Text(
+                "Finance API Connected",
+                style="heading3"
+            ),
+            *rows,
+            spacing=0.5,
+            margin=2,
         )
-
-        # обробка дій у таблиці
-        def on_action(action, row):
-            if action == "delete_finance":
-                show_warning(page, f"Ви дійсно хочете видалити запис {row['id']}?")
-                try:
-                    delete_finance_entry(row["id"])
-                    show_success(page, "Фінансовий запис успішно видалено")
-                except Exception as e:
-                    show_error(page, f"Помилка при видаленні: {str(e)}")
-
-        table.on_action(on_action)
-        page.add(table)
-
-    # форма для додавання запису
-    form = AutoForm()
-    form.add(TextInput(label="Дата (YYYY-MM-DD)", name="date", placeholder="2026-10-11"))
-    form.add(TextInput(label="Категорія (income/expense/investment/loan)", name="category"))
-    form.add(NumberInput(label="Сума", name="amount", placeholder="1000"))
-
-    def on_submit(values):
-        ok, msg = validate_finance_entry(values["date"], values["category"], values["amount"])
-        if not ok:
-            show_error(page, msg)
-        else:
-            try:
-                add_finance_entry(values)
-                show_success(page, f"Запис додано: {values['category']} {values['amount']} грн")
-                form.clear()  # очистити форму після успішного додавання
-            except Exception as e:
-                show_error(page, f"Помилка при додаванні: {str(e)}")
-
-    form.on_submit(on_submit)
-    page.add(form)
-
-    return page

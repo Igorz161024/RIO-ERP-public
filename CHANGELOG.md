@@ -1527,3 +1527,121 @@ Notes
 - Перевірено повний ланцюжок Frontend → Service → Backend → PostgreSQL.
 - Отримано та відображено реальні записи журналу з БД.
 - Поточна реалізація є базовим шаблоном для міграції інших ERP-модулів.
+Added
+- Реалізовано перше підключення модуля Journal до Backend API через Service Layer.
+- Додано отримання записів журналу з PostgreSQL через endpoint /api/journal/.
+- Додано відображення записів журналу у Rio Frontend.
+- Підтверджено роботу JWT-авторизації між фронтендом та бекендом.
+
+Changed
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\config.py для використання Docker-адреси rio_backend1 замість localhost.
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\services\journal.py для коректної обробки JSON-відповідей у форматі list.
+- Оновлено файл C:\Users\igorz\Projects\RIO-ERP\frontend_rio\ui\journal_page.py для роботи з реальними даними Journal API.
+
+Fixed
+- Усунуто проблему доступу Rio Frontend до Backend API через localhost усередині контейнера.
+- Усунуто помилку AttributeError: 'list' object has no attribute 'get'.
+- Усунуто проблему підключення фронтенду до бекенду через Docker Network.
+- Відновлено коректне отримання та відображення записів журналу.
+
+Notes
+- Підтверджено роботу ланцюжка Rio Frontend → Service Layer → Backend API → PostgreSQL.
+- Journal став першим повністю інтегрованим модулем нової Rio-архітектури.
+- Дані журналу успішно завантажуються та відображаються у браузері.
+- Створено базовий шаблон інтеграції для подальшого перенесення модулів Accounts, Finance, Inventory, Sales, Purchases, Legal та Users.
+## 2026-11-06
+Added
+- Додано Service Layer для модулів Accounts, Finance та Inventory за єдиним шаблоном інтеграції з Backend API.
+- Додано підтримку JWT-авторизації для всіх HTTP-запитів фронтенду до API модулів Accounts, Finance та Inventory.
+- Додано нові сторінки AccountsPage, FinancePage та InventoryPage на базі архітектури Rio UI 0.12.4.
+
+Changed
+- Переведено модулі Accounts, Finance та Inventory зі старої архітектури PageView на нову компонентну архітектуру Rio UI 0.12.4.
+- Уніфіковано структуру Service Layer для Journal, Accounts, Finance та Inventory.
+- Оновлено main.py для підключення нових компонентів фронтенду через ComponentPage.
+- Реалізовано єдиний шаблон взаємодії Frontend → Service Layer → Backend API → PostgreSQL.
+
+Fixed
+- Усунуто застарілу логіку обробки API-відповідей через data.get("data", data).
+- Усунуто залежність модулів Finance та Inventory від старих компонентів PageView, Table та AutoForm.
+- Відновлено відповідність архітектури фронтенду стандарту Rio UI 0.12.4.
+
+Notes
+- Journal залишається еталонним модулем нової фронтенд-архітектури.
+- Accounts, Finance та Inventory переведені на єдиний підхід інтеграції через Service Layer.
+- Бекенд модулів Accounts, Finance та Inventory змін не потребував.
+- Підготовлено архітектурну основу для міграції модулів Sales, Purchases, Legal та Users.
+Added
+
+- Додано Purchases Service Layer для інтеграції з Backend API.
+- Додано PurchasesPage на базі Rio UI 0.12.4.
+- Додано відображення даних закупівель із PostgreSQL через Backend API.
+
+Changed
+
+- Переведено модуль Purchases зі старої архітектури PageView на Component Architecture Rio UI 0.12.4.
+- Уніфіковано структуру Purchases відповідно до Journal, Accounts, Finance та Inventory.
+
+Fixed
+
+- Усунуто використання data.get("data", data).
+- Усунуто залежність від PageView, Table та AutoForm.
+
+Notes
+
+- Purchases став п'ятим модулем нової фронтенд-архітектури.
+- Backend API змін не потребував.
+- Модуль використовує єдиний шаблон Frontend → Service Layer → Backend API → PostgreSQL.
+Added
+
+- Додано Users Service Layer для інтеграції з Backend API.
+- Додано UsersPage на базі Rio UI 0.12.4.
+- Додано відображення користувачів через REST API.
+- Додано інтеграцію UsersPage з JWT авторизацією.
+
+Changed
+
+- Переведено модуль Users зі старої архітектури PageView на Component Architecture Rio UI 0.12.4.
+- Уніфіковано структуру Users відповідно до Journal, Accounts, Finance, Inventory, Purchases, Sales та Legal.
+- Реалізовано єдиний шаблон Frontend → Service Layer → Backend API → PostgreSQL.
+
+Fixed
+
+- Усунуто використання застарілих компонентів PageView, Table та AutoForm.
+- Усунуто використання messages для CRUD-операцій старої архітектури.
+- Усунуто залежність від data.get("data", data).
+
+Notes
+
+- Модуль Users залишається модулем автентифікації та авторизації.
+- JWT, ролі користувачів та password_hash залишаються без змін.
+- Архітектура підготовлена для майбутнього підключення окремого модуля Employees без зміни поточної структури Users.
+- Users працює через єдиний шаблон Frontend → Service Layer → Backend API → PostgreSQL.
+# 2026-11-07
+
+Added
+
+- Додано концепцію Agentic ERP Workflow для автоматизації бізнес-процесів через ШІ-агентів.
+- Додано архітектурну схему інтеграції AI Agent → Banking API → Journal → Audit Log.
+- Підготовлено проєкт окремої гілки feature/ai-agents для експериментальної інтеграції ШІ-компонентів.
+- Додано концепцію AI Assistant як окремого аналітичного рівня над ERP-модулями.
+
+Changed
+
+- Переглянуто архітектурну роль ШІ-агентів у системі.
+- Розмежовано відповідальність між бізнес-логікою ERP та інтелектуальними сервісами.
+- Уточнено перспективи розвитку модулів безпеки, аналітики та агентних сервісів.
+- Оновлено описи майбутніх напрямів розвитку системи відповідно до поточної архітектури FastAPI + PostgreSQL + Rio UI.
+
+Fixed
+
+- Усунуто змішування понять FastAPI та REST API в описі архітектури.
+- Усунуто логічне дублювання у висновках розділів розвитку системи.
+- Скориговано роль ШІ-агентів: фінансові розрахунки залишаються в модулях ERP, а агенти виконують аналітичні та координуючі функції.
+
+Notes
+
+- ШІ-агенти розглядаються як окремий рівень розширення системи, а не як заміна бізнес-логіки ERP.
+- Фінансові розрахунки, бухгалтерські проводки та облік залишаються в модулях Finance, Journal, Accounts та EntryLine.
+- Передбачено можливість майбутньої інтеграції автоматизованих платіжних сценаріїв через AI Agent та зовнішні банківські API.
+- Підготовлено архітектурну основу для подальшої розробки гілки feature/ai-agents.

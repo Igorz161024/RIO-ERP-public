@@ -1,31 +1,68 @@
 import httpx
+
 from config import API_URL, API_TOKEN
 
 BASE_URL = f"{API_URL}/api/users/"
-HEADERS = {"Authorization": f"Bearer {API_TOKEN}"}
+HEADERS = {
+    "Authorization": f"Bearer {API_TOKEN}"
+}
+
 
 def get_users():
-    response = httpx.get(BASE_URL, headers=HEADERS)
+    response = httpx.get(
+        BASE_URL,
+        headers=HEADERS
+    )
+
     response.raise_for_status()
+
     return response.json()
+
 
 def add_user_entry(entry: dict):
-    """Створити нового користувача"""
-    response = httpx.post(BASE_URL, json=entry, headers=HEADERS)
+    response = httpx.post(
+        BASE_URL,
+        json=entry,
+        headers=HEADERS
+    )
+
     response.raise_for_status()
+
     return response.json()
 
-def get_user_by_id(entry_id: int):
-    response = httpx.get(f"{BASE_URL}{entry_id}", headers=HEADERS)
+
+def get_user_by_id(user_id: int):
+    response = httpx.get(
+        f"{BASE_URL}{user_id}",
+        headers=HEADERS
+    )
+
     response.raise_for_status()
+
     return response.json()
 
-def update_user(entry_id: int, updated_data: dict):
-    response = httpx.put(f"{BASE_URL}{entry_id}", json=updated_data, headers=HEADERS)
+
+def update_user(
+    user_id: int,
+    updated_data: dict
+):
+    response = httpx.put(
+        f"{BASE_URL}{user_id}",
+        json=updated_data,
+        headers=HEADERS
+    )
+
     response.raise_for_status()
+
     return response.json()
 
-def delete_user(entry_id: int):
-    response = httpx.delete(f"{BASE_URL}{entry_id}", headers=HEADERS)
+
+def delete_user(user_id: int):
+    response = httpx.delete(
+        f"{BASE_URL}{user_id}",
+        headers=HEADERS
+    )
+
     response.raise_for_status()
+
     return response.json()

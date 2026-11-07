@@ -1,168 +1,56 @@
-from rio import PageView, Table, AutoForm, TextInput, NumberInput
+import rio
 
-from services.sales import (
-    get_sales,
-    add_sales_entry,
-    delete_sales_entry
+from services.sales import get_sales
+
+
+@rio.page(
+    name="Sales",
+    url_segment="sales"
 )
+class SalesPage(rio.Component):
 
-from ui.messages import (
-    show_error,
-    show_info,
-    show_success,
-    show_warning
-)
+    def build(self) -> rio.Component:
 
+        entries = get_sales()
 
-def validate_sale_entry(
-    client,
-    product,
-    quantity,
-    price
-):
-    if not client.strip():
-        return False, "Клієнт не може бути порожнім"
+        rows = [
+            rio.Text(
+                "ID | Client | Product | Qty | Price | Amount",
+                style="heading3"
+            ),
+            rio.Text(
+                "[ Refresh ] [ Add Sale ] [ Edit Sale ] [ Delete Sale ]"
+            ),
+            rio.Text(
+                "-" * 80
+            ),
+        ]
 
-    if not product.strip():
-        return False, "Товар не може бути порожнім"
-
-    if quantity <= 0:
-        return False, "Кількість повинна бути більше 0"
-
-    if price <= 0:
-        return False, "Ціна повинна бути більше 0"
-
-    return True, "OK"
-
-
-def sales_page(page: PageView):
-
-    data = get_sales()
-
-    if not data:
-        show_info(page, "Немає записів продажів")
-
-    else:
-
-        table = Table(
-            data,
-            columns=[
-                "id",
-                "client",
-                "product",
-                "quantity",
-                "price",
-                "amount"
-            ],
-            actions=[
-                {
-                    "label": "Видалити",
-                    "name": "delete_sale"
-                }
-            ]
-        )
-
-        def on_action(action, row):
-
-            if action == "delete_sale":
-
-                show_warning(
-                    page,
-                    f"Видалити продаж клієнта '{row['client']}'?"
+        for entry in entries:
+            rows.append(
+                rio.Text(
+                    f"{entry['id']} | "
+                    f"{entry['client']} | "
+                    f"{entry['product']} | "
+                    f"{entry['quantity']} | "
+                    f"{entry['price']} | "
+                    f"{entry['amount']}"
                 )
+            )
 
-                try:
-
-                    delete_sales_entry(row["id"])
-
-                    show_success(
-                        page,
-                        "Продаж успішно видалено"
-                    )
-
-                except Exception as e:
-
-                    show_error(
-                        page,
-                        f"Помилка при видаленні: {str(e)}"
-                    )
-
-        table.on_action(on_action)
-
-        page.add(table)
-
-    form = AutoForm()
-
-    form.add(
-        TextInput(
-            label="Клієнт",
-            name="client"
+        return rio.Column(
+            rio.Text(
+                "Sales",
+                style="heading2"
+            ),
+            rio.Text(
+                f"Records: {len(entries)}"
+            ),
+            rio.Text(
+                "Sales API Connected",
+                style="heading3"
+            ),
+            *rows,
+            spacing=0.5,
+            margin=2,
         )
-    )
-
-    form.add(
-        TextInput(
-            label="Товар",
-            name="product"
-        )
-    )
-
-    form.add(
-        NumberInput(
-            label="Кількість",
-            name="quantity",
-            placeholder="1"
-        )
-    )
-
-    form.add(
-        NumberInput(
-            label="Ціна",
-            name="price",
-            placeholder="100"
-        )
-    )
-
-    def on_submit(values):
-
-        ok, msg = validate_sale_entry(
-            values["client"],
-            values["product"],
-            values["quantity"],
-            values["price"]
-        )
-
-        if not ok:
-
-            show_error(page, msg)
-
-        else:
-
-            try:
-
-                values["amount"] = (
-                    float(values["quantity"])
-                    * float(values["price"])
-                )
-
-                add_sales_entry(values)
-
-                show_success(
-                    page,
-                    "Продаж успішно додано"
-                )
-
-                form.clear()
-
-            except Exception as e:
-
-                show_error(
-                    page,
-                    f"Помилка при додаванні: {str(e)}"
-                )
-
-    form.on_submit(on_submit)
-
-    page.add(form)
-
-    return page
