@@ -13,28 +13,33 @@ class SalesPage(rio.Component):
 
         entries = get_sales()
 
-        rows = [
-            rio.Text(
-                "ID | Client | Product | Qty | Price | Amount",
-                style="heading3"
-            ),
-            rio.Text(
-                "[ Refresh ] [ Add Sale ] [ Edit Sale ] [ Delete Sale ]"
-            ),
-            rio.Text(
-                "-" * 80
-            ),
-        ]
+        rows = []
 
         for entry in entries:
             rows.append(
-                rio.Text(
-                    f"{entry['id']} | "
-                    f"{entry['client']} | "
-                    f"{entry['product']} | "
-                    f"{entry['quantity']} | "
-                    f"{entry['price']} | "
-                    f"{entry['amount']}"
+                rio.Column(
+                    rio.Text(
+                        f"ID: {entry['id']}"
+                    ),
+                    rio.Text(
+                        f"Client: {entry['client']}"
+                    ),
+                    rio.Text(
+                        f"Product: {entry['product']}"
+                    ),
+                    rio.Text(
+                        f"Quantity: {entry['quantity']}"
+                    ),
+                    rio.Text(
+                        f"Price: {entry['price']}"
+                    ),
+                    rio.Text(
+                        f"Amount: {entry['amount']}"
+                    ),
+                    rio.Text(
+                        "-" * 40
+                    ),
+                    spacing=0.2,
                 )
             )
 
@@ -49,6 +54,9 @@ class SalesPage(rio.Component):
             rio.Text(
                 "Sales API Connected",
                 style="heading3"
+            ),
+            rio.Text(
+                "[ Refresh ] [ Add Sale ] [ Edit Sale ] [ Delete Sale ]"
             ),
             *rows,
             spacing=0.5,
