@@ -1645,3 +1645,39 @@ Notes
 - Фінансові розрахунки, бухгалтерські проводки та облік залишаються в модулях Finance, Journal, Accounts та EntryLine.
 - Передбачено можливість майбутньої інтеграції автоматизованих платіжних сценаріїв через AI Agent та зовнішні банківські API.
 - Підготовлено архітектурну основу для подальшої розробки гілки feature/ai-agents.
+# 2026-11-08
+Added
+- Проведено повне тестування JWT-аутентифікації через endpoint /token.
+- Виконано тестування CRUD-операцій модуля Journal через API.
+- Успішно перевірено створення запису Journal (POST).
+- Успішно перевірено редагування запису Journal (PUT).
+- Успішно перевірено видалення запису Journal (DELETE).
+- Підтверджено працездатність Backend1 та Backend2 після перезапуску контейнерів.
+
+Changed
+- Оновлено password_hash користувача admin на коректний bcrypt-хеш.
+- Уніфіковано docker-compose.yml для роботи зі спільною БД erp_db.
+- Видалено застарілий сервіс rio_erp_db із конфігурації RIO-ERP.
+- Переведено RIO-ERP на використання єдиного контейнера PostgreSQL erp_db.
+
+Fixed
+- Усунено помилку авторизації:
+  passlib.exc.UnknownHashError: hash could not be identified
+- Виявлено та виправлено некоректне значення password_hash = b2 у таблиці users.
+- Відновлено роботу endpoint /token.
+- Усунено конфлікт подвійної конфігурації PostgreSQL (erp_db / rio_erp_db).
+- Видалено контейнер rio_erp_db після успішної міграції на erp_db.
+
+Notes
+- Підтверджено актуальну архітектуру:
+  Container: erp_db
+  Database: erp_diplom
+- Journal CRUD протестовано успішно:
+  GET ✅
+  POST ✅
+  PUT ✅
+  DELETE ✅
+- Backend1 Health ✅
+- Backend2 Health ✅
+- Frontend Health ✅
+- PostgreSQL Health ✅
