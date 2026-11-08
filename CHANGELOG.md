@@ -1681,3 +1681,67 @@ Notes
 - Backend2 Health ✅
 - Frontend Health ✅
 - PostgreSQL Health ✅
+Added
+- Проведено повне CRUD-тестування модуля Accounts через API.
+- Перевірено отримання списку рахунків через GET.
+- Перевірено створення нового рахунку через POST.
+- Перевірено оновлення рахунку через PUT.
+- Перевірено видалення рахунку через DELETE.
+
+Changed
+- Створено тестовий запис CRUD_TEST_ACCOUNT.
+- Виконано оновлення тестового запису до CRUD_TEST_ACCOUNT_UPDATED.
+
+Fixed
+- Підтверджено коректну роботу маршруту /api/accounts.
+- Підтверджено коректну роботу JWT-авторизації для Accounts API.
+
+Notes
+- Accounts CRUD протестовано успішно:
+  GET ✅
+  POST ✅
+  PUT ✅
+  DELETE ✅
+- Підключення Backend → PostgreSQL працює коректно.
+Added
+- Проведено повне CRUD-тестування модуля Finance через API.
+- Перевірено отримання фінансових записів через GET.
+- Перевірено створення фінансового запису через POST.
+- Перевірено оновлення фінансового запису через PUT.
+- Перевірено видалення фінансового запису через DELETE.
+
+Changed
+- Створено тестовий запис TEST_ACCOUNT.
+- Виконано оновлення тестового запису до TEST_ACCOUNT_UPDATED.
+
+Fixed
+- Підтверджено коректну роботу маршруту /api/finance.
+- Підтверджено роботу JWT-авторизації для Finance API.
+
+Notes
+- Finance CRUD протестовано успішно:
+  GET ✅
+  POST ✅
+  PUT ✅
+  DELETE ✅
+- Backend → PostgreSQL працює коректно.
+Added
+- Проведено тестування модуля Inventory через REST API.
+- Перевірено отримання списку складських позицій (GET /api/inventory/).
+- Перевірено створення нової складської позиції (POST /api/inventory/).
+- Перевірено отримання складської позиції за ID (GET /api/inventory/{id}).
+- Перевірено відображення даних Inventory у RIO Frontend.
+
+Changed
+- Уточнено маршрутизацію RIO Frontend та перевірено відкриття сторінки Inventory через URL /inventory.
+
+Fixed
+- Виявлено, що проблема полягала у відкритті стартової сторінки Journal замість сторінки Inventory.
+- Підтверджено коректне підключення InventoryPage у frontend_rio/main.py.
+- Підтверджено коректну взаємодію між RIO Frontend та Inventory API.
+
+Notes
+- Inventory API працює коректно.
+- Дані успішно зчитуються з PostgreSQL та відображаються у веб-інтерфейсі.
+- Сторінка Inventory успішно відкривається за адресою /inventory.
+- Модуль Inventory вважається протестованим.
