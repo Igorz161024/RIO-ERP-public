@@ -168,7 +168,6 @@ backend_structure.txt
 models_structure.txt
 routers_structure.txt
 schemas_structure.txt
-users_router.py
 *.swp
 *.swo
 # JWT tokens

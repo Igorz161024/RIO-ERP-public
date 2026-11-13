@@ -34,15 +34,19 @@ def health():
 # Імпорти роутерів
 # -------------------------------
 
-import backend.routers.users_router as users_router
-import backend.routers.journal_router as journal_router
-import backend.routers.finance_router as finance_router
-import backend.routers.inventory_router as inventory_router
-import backend.routers.sales_router as sales_router
-import backend.routers.purchases_router as purchases_router
-import backend.routers.accounts_router as accounts_router
-import backend.routers.legal_router as legal_router
-import backend.routers.entry_lines as entry_lines
+# -------------------------------
+# Імпорти роутерів
+# -------------------------------
+
+from backend.routers import users_router
+from backend.routers import journal_router
+from backend.routers import finance_router
+from backend.routers import inventory_router
+from backend.routers import sales_router
+from backend.routers import purchases_router
+from backend.routers import accounts_router
+from backend.routers import legal_router
+from backend.routers import entry_lines
 
 app.include_router(users_router.router)
 app.include_router(journal_router.router)
