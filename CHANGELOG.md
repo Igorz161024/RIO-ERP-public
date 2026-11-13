@@ -1804,3 +1804,105 @@ Notes
 - Inventory автоматично оновлює залишки після продажу.
 - Journal автоматично створює бухгалтерські записи.
 - Модуль Sales вважається протестованим.
+# 2026-11-09
+Added
+- Проведено повне тестування модуля Purchases.
+- Перевірено GET /api/purchases/.
+- Перевірено GET /api/purchases/{id}.
+- Перевірено POST /api/purchases/.
+- Перевірено PUT /api/purchases/{id}.
+- Перевірено DELETE /api/purchases/{id}.
+- Підтверджено роботу JWT-захисту для всіх тестових запитів.
+- Налаштовано автоматичне завантаження TOKEN через ~/.bashrc.
+
+Changed
+- Створення закупівлі автоматично формує запис у Inventory.
+- Створення закупівлі автоматично формує запис у Journal.
+- Для складських записів використовується автоматичний номер партії виду PUR-{purchase_id}.
+
+Fixed
+- Підтверджено коректне видалення записів Purchases.
+- Підтверджено повернення помилки "Запис не знайдено" після видалення запису.
+
+Notes
+- Purchases CRUD: PASSED.
+- Inventory Integration: PASSED.
+- Journal Integration: PASSED.
+- JWT Authentication: PASSED.
+- Rio Frontend Integration: PASSED.
+- Модуль Purchases вважається протестованим.
+Added
+- Проведено повне тестування модуля Users.
+- Перевірено GET /api/users/.
+- Перевірено POST /api/users/.
+- Перевірено PUT /api/users/{id}.
+- Перевірено DELETE /api/users/{id}.
+
+Changed
+- Підтверджено створення нових користувачів через API.
+- Підтверджено оновлення ролей користувачів.
+- Підтверджено коректне видалення користувачів.
+
+Fixed
+- Підтверджено коректну роботу JWT-авторизації для Users API.
+
+Notes
+- Users CRUD: PASSED.
+- JWT Authentication: PASSED.
+- Протестовано модулі Journal, Accounts, Finance, Inventory, Sales, Purchases та Users.
+- Наступний етап: тестування Legal та DB/Admin.
+Added
+- Проведено повне тестування модуля Legal.
+- Перевірено GET /api/legal/.
+- Перевірено POST /api/legal/.
+- Перевірено PUT /api/legal/{id}.
+- Перевірено DELETE /api/legal/{id}.
+
+Changed
+- Підтверджено створення нових договорів через API.
+- Підтверджено оновлення статусів договорів.
+- Підтверджено коректне видалення договорів.
+
+Fixed
+- Підтверджено коректну роботу JWT-авторизації для Legal API.
+
+Notes
+- Legal CRUD: PASSED.
+- JWT Authentication: PASSED.
+- Протестовано модулі Journal, Accounts, Finance, Inventory, Sales, Purchases, Users та Legal.
+- Наступний етап: тестування DB/Admin.
+Notes
+- Legal CRUD: PASSED.
+- JWT Authentication: PASSED.
+- Протестовано модулі Journal, Accounts, Finance, Inventory, Sales, Purchases, Users та Legal.
+- Основні модулі ERP успішно пройшли CRUD-тестування.
+Added
+- Проведено фронтенд-тестування модулів Users та Legal.
+- Підтверджено інтеграцію Rio Frontend з Users API та Legal API.
+- Підтверджено коректне відображення даних користувачів і договорів у фронтенді.
+
+Changed
+- Перевірено маршрути навігації Users та Legal у Rio Frontend.
+
+Fixed
+- Відновлено запуск контейнера rio_frontend та доступність веб-інтерфейсу на порту 3001.
+
+Notes
+- Users Frontend: PASSED.
+- Legal Frontend: PASSED.
+- Users API Integration: PASSED.
+- Legal API Integration: PASSED.
+- Повне тестування всіх наявних модулів RIO-ERP завершено успішно.
+
+# 2026-11-13
+Added
+- GitHub Actions CI pipeline for automatic validation of RIO-ERP.
+
+Changed
+- Added automated syntax, dependency and Docker build checks.
+
+Fixed
+- N/A
+
+Notes
+- CI pipeline runs automatically on GitHub after push to main.
