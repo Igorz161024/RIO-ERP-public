@@ -75,8 +75,7 @@ jobs:
           docker compose config
 
       - name: Run backend tests
-        run: |
-          pytest tests -v || true
+        run: pytest tests -v
 
       - name: Build backend image
         run: docker build -t rio-backend ./backend
