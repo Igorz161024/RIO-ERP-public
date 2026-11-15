@@ -1926,3 +1926,24 @@ Notes
 - CI pipeline now supports .env.example for Docker Compose validation.
 - Repository can be cloned and configured without exposing real secrets.
 - GitHub Actions validation is closer to a production-ready CI workflow.
+2026-11-15
+
+Added
+- Додано автоматичний запуск pytest у GitHub Actions.
+- Додано перевірку модулів frontend_rio та backend під час CI-тестування.
+- Додано функцію validate_sale_entry для автоматичних тестів модуля Sales.
+
+Changed
+- Змінено імпорти у frontend_rio на абсолютні шляхи для коректної роботи в середовищі CI/CD.
+- Оновлено конфігурацію GitHub Actions для запуску автоматичних тестів.
+
+Fixed
+- Виправлено імпорт frontend_rio.services.sales у sales_page.py.
+- Виправлено імпорт frontend_rio.config у services/sales.py.
+- Усунено помилки пошуку модулів backend і frontend_rio під час виконання pytest.
+
+Notes
+- Автоматичні тести успішно запускаються в GitHub Actions.
+- Поточний результат тестування: 5 тестів успішно пройдено, 2 тести завершилися помилкою.
+- Виявлено відсутність підтримки асинхронних тестів Inventory через відсутність pytest-asyncio.
+- Наступний крок: додати pytest-asyncio та перевірити модуль Inventory.

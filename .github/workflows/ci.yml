@@ -47,8 +47,8 @@ jobs:
 
       - name: Install test tools
         run: |
-          pip install pytest
-
+          pip install pytest pytest-asyncio
+          
       - name: Check backend syntax
         run: python -m compileall backend
 
