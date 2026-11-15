@@ -75,7 +75,9 @@ jobs:
           docker compose config
 
       - name: Run backend tests
-        run: pytest tests -v
+         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests -v
 
       - name: Build backend image
         run: docker build -t rio-backend ./backend
