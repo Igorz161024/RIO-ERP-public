@@ -10,7 +10,6 @@ on:
       - main
 
 jobs:
-
   build-and-check:
 
     runs-on: ubuntu-latest
@@ -75,8 +74,9 @@ jobs:
           docker compose config
 
       - name: Run backend tests
-         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
           pytest tests -v
 
       - name: Build backend image
