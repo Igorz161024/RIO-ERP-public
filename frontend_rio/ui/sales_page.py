@@ -1,6 +1,6 @@
 import rio
 
-from services.sales import get_sales
+from frontend_rio.services.sales import get_sales
 
 
 @rio.page(

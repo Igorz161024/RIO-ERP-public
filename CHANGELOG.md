@@ -1907,3 +1907,22 @@ Fixed
 
 Notes
 - CI pipeline runs automatically on GitHub after push to main.
+##2026-11-15
+
+Added
+- Created .env.example template for public repository deployment.
+- Added Docker Compose validation using environment template.
+- Added project structure validation in GitHub Actions CI pipeline.
+
+Changed
+- Updated authentication configuration to use load_dotenv() instead of a hardcoded .env.prod path.
+- Improved CI pipeline validation workflow for public deployment scenarios.
+
+Fixed
+- Removed failing security-check step that caused false-positive CI failures.
+- Fixed environment configuration compatibility between local development and GitHub Actions.
+
+Notes
+- CI pipeline now supports .env.example for Docker Compose validation.
+- Repository can be cloned and configured without exposing real secrets.
+- GitHub Actions validation is closer to a production-ready CI workflow.
