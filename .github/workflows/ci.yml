@@ -14,6 +14,29 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 4568
+          POSTGRES_DB: erp_diplom
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_USER: postgres
+      DB_PASS: 4568
+      DB_NAME: erp_diplom
+      DB_HOST: localhost
+      DB_PORT: 5432
+      PYTHONPATH: ${{ github.workspace }}
+
     steps:
 
       - name: Checkout repository
@@ -48,7 +71,7 @@ jobs:
       - name: Install test tools
         run: |
           pip install pytest pytest-asyncio
-          
+
       - name: Check backend syntax
         run: python -m compileall backend
 
@@ -74,8 +97,6 @@ jobs:
           docker compose config
 
       - name: Run backend tests
-        env:
-          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest tests -v
 
