@@ -1,6 +1,36 @@
 import rio
+from datetime import datetime
 
 from frontend_rio.services.sales import get_sales
+
+
+def validate_sale_entry(
+    date: str,
+    client: str,
+    amount: float,
+    status: str
+):
+    if not date:
+        return False, "Дата не може бути порожньою"
+
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        return False, "Невірний формат дати"
+
+    if amount <= 0:
+        return False, "Сума має бути числом > 0"
+
+    allowed_statuses = [
+        "pending",
+        "completed",
+        "cancelled"
+    ]
+
+    if status not in allowed_statuses:
+        return False, "Недопустимий статус"
+
+    return True, "OK"
 
 
 @rio.page(
