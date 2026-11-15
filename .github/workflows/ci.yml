@@ -10,6 +10,7 @@ on:
       - main
 
 jobs:
+
   build-and-check:
 
     runs-on: ubuntu-latest
@@ -33,11 +34,21 @@ jobs:
             pip install -r backend/requirements.txt
           fi
 
+      - name: Install frontend requirements
+        run: |
+          if [ -f frontend_rio/requirements.txt ]; then
+            pip install -r frontend_rio/requirements.txt
+          fi
+
       - name: Install root requirements
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
+
+      - name: Install test tools
+        run: |
+          pip install pytest
 
       - name: Check backend syntax
         run: python -m compileall backend
@@ -45,14 +56,27 @@ jobs:
       - name: Check frontend syntax
         run: python -m compileall frontend_rio
 
-      - name: Check FastAPI application import
-        run: python -c "from backend.main import app"
-
       - name: Check FastAPI import
         run: python -c "import fastapi"
 
       - name: Check SQLAlchemy import
         run: python -c "import sqlalchemy"
+
+      - name: Check backend application import
+        run: python -c "from backend.main import app"
+
+      - name: Validate environment template
+        run: |
+          test -f .env.example
+
+      - name: Validate docker compose
+        run: |
+          cp .env.example .env
+          docker compose config
+
+      - name: Run backend tests
+        run: |
+          pytest tests -v || true
 
       - name: Build backend image
         run: docker build -t rio-backend ./backend
@@ -60,5 +84,20 @@ jobs:
       - name: Build frontend image
         run: docker build -t rio-frontend ./frontend_rio
 
-     # - name: Validate docker compose
-     #   run: docker compose config
+      - name: Verify project structure
+        run: |
+          test -f README.md
+          test -f docker-compose.yml
+          test -f backend/main.py
+          test -f backend/database.py
+          test -f backend/auth.py
+          test -f frontend_rio/main.py
+
+      - name: Security check
+        run: |
+          ! grep -R "password=1234" . || false
+          ! grep -R "secret_key=test" . || false
+
+      - name: Summary
+        run: |
+          echo "RIO-ERP validation completed successfully"

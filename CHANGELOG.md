@@ -1899,7 +1899,8 @@ Added
 - GitHub Actions CI pipeline for automatic validation of RIO-ERP.
 
 Changed
-- Added automated syntax, dependency and Docker build checks.
+- Added automated syntax, dependency and Docker build  
+checks.
 
 Fixed
 - N/A
