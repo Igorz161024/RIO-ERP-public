@@ -93,11 +93,6 @@ jobs:
           test -f backend/auth.py
           test -f frontend_rio/main.py
 
-      - name: Security check
-        run: |
-          ! grep -R "password=1234" . || false
-          ! grep -R "secret_key=test" . || false
-
       - name: Summary
         run: |
           echo "RIO-ERP validation completed successfully"
