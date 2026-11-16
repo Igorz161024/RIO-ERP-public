@@ -31,4 +31,24 @@ async def test_inventory_list():
 
 @pytest.mark.asyncio
 async def test_inventory_create():
-    pass
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/api/inventory/",
+            json={
+                "product": "Test Product",
+                "quantity": 10,
+                "batch": "TEST-001",
+                "price": 100.0
+            }
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["product"] == "Test Product"
+    assert data["quantity"] == 10
+    assert data["batch"] == "TEST-001"
+    assert data["price"] == 100.0
