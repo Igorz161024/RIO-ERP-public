@@ -1,5 +1,14 @@
 from backend.database import Base, engine
-from backend.models import accounts, journal, user  # імпортуй усі моделі
+from backend.models import (
+    accounts,
+    journal,
+    user,
+    inventory,
+    sales,
+    purchases,
+    legal,
+    finance
+)
 
 def init_db():
     print("Creating tables in erp_diplom...")

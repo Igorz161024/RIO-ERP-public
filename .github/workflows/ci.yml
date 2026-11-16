@@ -95,6 +95,9 @@ jobs:
           cp .env.example .env
           docker compose config
 
+      - name: Create database tables
+        run: python backend/init_db.py    
+
       - name: Run backend tests
         run: |
           pytest tests -v --cov=backend --cov-report=term
