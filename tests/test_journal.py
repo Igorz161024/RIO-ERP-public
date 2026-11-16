@@ -42,7 +42,7 @@ async def test_journal_create():
                 "operation": "Test operation",
                 "status": "completed",
                 "amount": 1000,
-                "account_id": 1
+                "account_id": None
             }
         )
 

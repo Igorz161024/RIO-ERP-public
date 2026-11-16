@@ -11,12 +11,21 @@ def db():
     db.close()
 
 def test_create_inventory(db):
-    new_item = Inventory(product="Item A", quantity=10, batch="B001")
+    new_item = Inventory(
+        product="Item A",
+        quantity=10,
+        batch="B001",
+        price=100.0
+    )
+
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
+
     assert new_item.id is not None
     assert new_item.quantity == 10
+    assert new_item.price == 100.0
+
 
 def test_read_inventory(db):
     item = db.query(Inventory).filter_by(product="Item A").first()
