@@ -70,8 +70,7 @@ jobs:
 
       - name: Install test tools
         run: |
-          pip install pytest pytest-asyncio
-
+          pip install pytest pytest-asyncio pytest-cov  
       - name: Check backend syntax
         run: python -m compileall backend
 
@@ -98,7 +97,7 @@ jobs:
 
       - name: Run backend tests
         run: |
-          pytest tests -v
+          pytest tests -v --cov=backend --cov-report=term
 
       - name: Build backend image
         run: docker build -t rio-backend ./backend
