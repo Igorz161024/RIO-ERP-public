@@ -20,7 +20,13 @@ app.dependency_overrides[get_current_user] = override_get_current_user
 
 @pytest.mark.asyncio
 async def test_inventory_list():
-    pass
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        response = await client.get("/api/inventory/")
+
+    assert response.status_code == 200
 
 
 @pytest.mark.asyncio
