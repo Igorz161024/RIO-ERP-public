@@ -70,7 +70,8 @@ jobs:
 
       - name: Install test tools
         run: |
-          pip install pytest pytest-asyncio pytest-cov  
+          pip install pytest pytest-asyncio pytest-cov
+
       - name: Check backend syntax
         run: python -m compileall backend
 
@@ -96,7 +97,8 @@ jobs:
           docker compose config
 
       - name: Create database tables
-        run: python backend/init_db.py    
+        run: |
+          python backend/init_db.py
 
       - name: Run backend tests
         run: |
