@@ -2224,3 +2224,27 @@ Notes
 
 - Модуль Finance повністю покритий базовим набором тестів.
 - Тестування виконано в контейнері rio_backend1.
+## Added
+
+- Створено централізований набір тестів для модуля Inventory у каталозі tests/inventory.
+- Додано API-тести для перевірки Inventory endpoints.
+- Додано CRUD-тести для моделі Inventory.
+- Додано тести валідації Pydantic-схем Inventory.
+- Додано тести авторизації та JWT-функціоналу для Inventory.
+- Додано frontend-тести сервісу Inventory.
+
+## Changed
+
+- Продовжено перенесення тестів із legacy-структури до централізованого каталогу tests.
+- Уніфіковано структуру тестування між модулями Accounts, Finance та Inventory.
+- Виправлено імпорт конфігурації у frontend_rio/services/inventory.py.
+
+## Fixed
+
+- Усунено помилку ModuleNotFoundError для config під час виконання frontend-тестів Inventory.
+- Підтверджено успішне проходження 12/12 тестів Inventory у контейнері rio_backend1.
+
+## Notes
+
+- Модуль Inventory повністю покритий базовим набором тестів.
+- Тестування виконувалось у Docker-контейнері rio_backend1.
