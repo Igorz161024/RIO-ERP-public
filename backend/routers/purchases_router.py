@@ -9,7 +9,6 @@ from backend.database import get_db
 from backend.models.purchases import Purchase
 from backend.models.inventory import Inventory
 from backend.models.journal import Journal
-from backend.models.entry_lines import EntryLine
 
 from backend.schemas.purchases import (
     PurchaseSchema,
@@ -37,7 +36,9 @@ def get_purchase(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    item = db.query(Purchase).filter(Purchase.id == item_id).first()
+    item = db.query(Purchase).filter(
+        Purchase.id == item_id
+    ).first()
 
     if not item:
         raise HTTPException(
@@ -54,9 +55,7 @@ def create_purchase(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # -------------------------
-    # 1. Створення Purchase
-    # -------------------------
+    # 1. Purchase
 
     new_purchase = Purchase(
         supplier=entry.supplier,
@@ -70,9 +69,7 @@ def create_purchase(
     db.add(new_purchase)
     db.flush()
 
-    # -------------------------
-    # 2. Створення Inventory
-    # -------------------------
+    # 2. Inventory
 
     inventory = Inventory(
         product=entry.product,
@@ -83,52 +80,19 @@ def create_purchase(
 
     db.add(inventory)
 
-    # -------------------------
-    # 3. Створення Journal
-    # -------------------------
+    # 3. Journal
 
     journal = Journal(
         date=date.today(),
         operation="Purchase",
         status="Completed",
         amount=entry.amount,
-        account_id=1
+        account_id=None
     )
 
     db.add(journal)
-    db.flush()
 
-    # -------------------------
-    # 4. Дебет
-    # Дт Tovary
-    # -------------------------
-
-    debit_line = EntryLine(
-        journal_id=journal.id,
-        account_id=1,
-        debit=entry.amount,
-        credit=0
-    )
-
-    db.add(debit_line)
-
-    # -------------------------
-    # 5. Кредит
-    # Кт Postachalnyky
-    # -------------------------
-
-    credit_line = EntryLine(
-        journal_id=journal.id,
-        account_id=2,
-        debit=0,
-        credit=entry.amount
-    )
-
-    db.add(credit_line)
-
-    # -------------------------
-    # 6. Збереження
-    # -------------------------
+    # 4. Save
 
     db.commit()
     db.refresh(new_purchase)
@@ -143,7 +107,9 @@ def update_purchase(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    db_item = db.query(Purchase).filter(Purchase.id == item_id).first()
+    db_item = db.query(Purchase).filter(
+        Purchase.id == item_id
+    ).first()
 
     if not db_item:
         raise HTTPException(
@@ -168,7 +134,9 @@ def delete_purchase(
     current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    db_item = db.query(Purchase).filter(Purchase.id == item_id).first()
+    db_item = db.query(Purchase).filter(
+        Purchase.id == item_id
+    ).first()
 
     if not db_item:
         raise HTTPException(

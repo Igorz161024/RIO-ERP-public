@@ -1,27 +1,65 @@
 import pytest
-from frontend_rio.ui.sales_page import validate_sale_entry
+from httpx import AsyncClient
+from httpx import ASGITransport
 
-def test_validate_sale_entry_valid():
-    ok, msg = validate_sale_entry("2026-10-12", "Іван", 1000, "completed")
-    assert ok is True
-    assert msg == "OK"
+from backend.main import app
 
-def test_validate_sale_entry_empty_date():
-    ok, msg = validate_sale_entry("", "Іван", 1000, "completed")
-    assert ok is False
-    assert "Дата не може бути порожньою" in msg
 
-def test_validate_sale_entry_invalid_date_format():
-    ok, msg = validate_sale_entry("12-10-2026", "Іван", 1000, "completed")
-    assert ok is False
-    assert "Невірний формат дати" in msg
+@pytest.mark.asyncio
+async def test_sales_list():
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        response = await client.get("/api/sales/")
 
-def test_validate_sale_entry_invalid_amount():
-    ok, msg = validate_sale_entry("2026-10-12", "Іван", -50, "completed")
-    assert ok is False
-    assert "Сума має бути числом > 0" in msg
+    assert response.status_code == 200
 
-def test_validate_sale_entry_invalid_status():
-    ok, msg = validate_sale_entry("2026-10-12", "Іван", 1000, "wrong_status")
-    assert ok is False
-    assert "Недопустимий статус" in msg
+
+@pytest.mark.asyncio
+async def test_sale_create_missing_inventory():
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/api/sales/",
+            json={
+                "client": "Test Client",
+                "product": "NotExistingProduct",
+                "quantity": 5,
+                "price": 200.0,
+                "amount": 1000.0
+            }
+        )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_sale_update_missing():
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        response = await client.put(
+            "/api/sales/999999",
+            json={
+                "amount": 1200.0
+            }
+        )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_sale_delete_missing():
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        response = await client.delete(
+            "/api/sales/999999"
+        )
+
+    assert response.status_code == 404

@@ -3,19 +3,6 @@ from httpx import AsyncClient
 from httpx import ASGITransport
 
 from backend.main import app
-from backend.auth import get_current_user
-
-
-def override_get_current_user():
-    class MockUser:
-        id = 1
-        username = "admin"
-        role = "admin"
-
-    return MockUser()
-
-
-app.dependency_overrides[get_current_user] = override_get_current_user
 
 
 @pytest.mark.asyncio
@@ -30,7 +17,7 @@ async def test_users_list():
 
 
 @pytest.mark.asyncio
-async def test_create_user():
+async def test_user_create():
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test"
@@ -38,8 +25,8 @@ async def test_create_user():
         response = await client.post(
             "/api/users/",
             json={
-                "username": "test_user_ci",
-                "email": "test_user_ci@example.com",
+                "username": "testuser",
+                "email": "test@test.com",
                 "password": "123456",
                 "role": "user"
             }
@@ -49,13 +36,13 @@ async def test_create_user():
 
     data = response.json()
 
-    assert data["username"] == "test_user_ci"
-    assert data["email"] == "test_user_ci@example.com"
+    assert data["username"] == "testuser"
+    assert data["email"] == "test@test.com"
     assert data["role"] == "user"
 
 
 @pytest.mark.asyncio
-async def test_update_missing_user():
+async def test_user_update_missing():
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test"
@@ -63,7 +50,7 @@ async def test_update_missing_user():
         response = await client.put(
             "/api/users/999999",
             json={
-                "username": "updated_user"
+                "role": "admin"
             }
         )
 
@@ -71,7 +58,7 @@ async def test_update_missing_user():
 
 
 @pytest.mark.asyncio
-async def test_delete_missing_user():
+async def test_user_delete_missing():
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test"
