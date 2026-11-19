@@ -2299,3 +2299,55 @@ Notes
 - Remaining failing test: tests/users/test_users_api.py::test_user_create
 - Cause: duplicate username already exists in PostgreSQL database.
 - Users API test requires unique username/email generation similar to Accounts tests.
+Added
+- Created Users test structure:
+  - tests/users/test_users_api.py
+  - tests/users/test_users_auth.py
+  - tests/users/test_users_crud.py
+  - tests/users/test_users_frontend.py
+  - tests/users/test_users_validation.py
+
+- Added Users frontend service tests.
+- Added Users schema validation tests.
+- Added Users authentication tests.
+- Added Users model CRUD tests.
+
+Changed
+- Moved Users API tests from root tests directory to dedicated users module.
+- Updated Users API create test to generate unique username and email values.
+- Updated docker-compose backend services to mount ./tests into /app/tests.
+
+Fixed
+- Fixed stale tests issue inside backend containers.
+- Fixed synchronization of local tests with Docker containers.
+- Fixed duplicate username collisions in Users API tests.
+- Fixed duplicate account name collisions in Accounts API tests.
+
+Notes
+- Full test suite executed successfully.
+- Result: 96 passed, 0 failed.
+- Accounts, Finance, Inventory, Sales, Purchases and Users modules migrated to new test architecture.
+- Backend containers now use live test files from local project directory.
+Added
+- Created Journal test structure:
+  - tests/journal/test_journal_api.py
+  - tests/journal/test_journal_auth.py
+  - tests/journal/test_journal_crud.py
+  - tests/journal/test_journal_frontend.py
+  - tests/journal/test_journal_validation.py
+
+- Added Journal frontend service tests.
+- Added Journal schema validation tests.
+- Added Journal authentication tests.
+- Added Journal model CRUD tests.
+
+Changed
+- Moved Journal API tests from root tests directory to dedicated journal module structure.
+
+Fixed
+- Standardized Journal tests according to modular test architecture used by Accounts, Finance, Inventory, Sales, Purchases and Users modules.
+
+Notes
+- Journal module test run completed successfully.
+- Result: 14 passed, 0 failed.
+- Journal module fully migrated to new test architecture.
