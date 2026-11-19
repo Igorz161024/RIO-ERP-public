@@ -2248,3 +2248,54 @@ Notes
 
 - Модуль Inventory повністю покритий базовим набором тестів.
 - Тестування виконувалось у Docker-контейнері rio_backend1.
+#2026-11-19
+Added
+- Created dedicated purchases test structure:
+  - tests/purchases/test_purchases_api.py
+  - tests/purchases/test_purchases_auth.py
+  - tests/purchases/test_purchases_crud.py
+  - tests/purchases/test_purchases_frontend.py
+  - tests/purchases/test_purchases_validation.py
+
+- Moved sales page validation tests to:
+  - tests/sales/test_sales_page_validation.py
+
+- Added tests volume mounting into backend containers:
+  - ./tests:/app/tests
+
+Changed
+- Refactored tests directory structure toward module-based layout.
+- Updated Accounts API create test to use unique account names instead of fixed values.
+
+Fixed
+- Fixed backend containers using stale test files caused by missing tests volume mount.
+- Fixed synchronization of local tests with rio_backend1 and rio_backend2 containers.
+- Fixed failing Accounts API create test caused by duplicate account names in PostgreSQL.
+
+Notes
+- Current test status: 85 passed, 1 failed.
+- Remaining failure: tests/test_users.py::test_user_create
+- Cause: duplicate username "testuser" already exists in database.
+- Next step: refactor user creation test to use unique username and email values (UUID approach).
+Added
+- Created Users test structure:
+  - tests/users/test_users_api.py
+  - tests/users/test_users_auth.py
+  - tests/users/test_users_crud.py
+  - tests/users/test_users_frontend.py
+  - tests/users/test_users_validation.py
+
+Changed
+- Moved Users API tests to dedicated users module structure.
+- Updated docker-compose backend volumes to mount tests directory into containers.
+
+Fixed
+- Fixed outdated test files inside backend containers.
+- Fixed synchronization between local tests directory and Docker containers.
+- Fixed Accounts API create test using unique generated account names.
+
+Notes
+- Test run result: 85 passed, 1 failed.
+- Remaining failing test: tests/users/test_users_api.py::test_user_create
+- Cause: duplicate username already exists in PostgreSQL database.
+- Users API test requires unique username/email generation similar to Accounts tests.

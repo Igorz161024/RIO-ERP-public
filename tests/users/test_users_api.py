@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import AsyncClient
 from httpx import ASGITransport
@@ -18,6 +20,12 @@ async def test_users_list():
 
 @pytest.mark.asyncio
 async def test_user_create():
+
+    unique_id = uuid.uuid4().hex[:8]
+
+    username = f"testuser_{unique_id}"
+    email = f"test_{unique_id}@test.com"
+
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test"
@@ -25,8 +33,8 @@ async def test_user_create():
         response = await client.post(
             "/api/users/",
             json={
-                "username": "testuser",
-                "email": "test@test.com",
+                "username": username,
+                "email": email,
                 "password": "123456",
                 "role": "user"
             }
@@ -36,8 +44,8 @@ async def test_user_create():
 
     data = response.json()
 
-    assert data["username"] == "testuser"
-    assert data["email"] == "test@test.com"
+    assert data["username"] == username
+    assert data["email"] == email
     assert data["role"] == "user"
 
 

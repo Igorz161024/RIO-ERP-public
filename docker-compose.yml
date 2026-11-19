@@ -9,6 +9,7 @@ services:
       - .env
     volumes:
       - ./backend:/app/backend
+      - ./tests:/app/tests
     networks:
       - rio_erp_network
     ports:
@@ -29,6 +30,7 @@ services:
       - .env
     volumes:
       - ./backend:/app/backend
+      - ./tests:/app/tests
     networks:
       - rio_erp_network
     ports:

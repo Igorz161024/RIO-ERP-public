@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from httpx import AsyncClient
 from httpx import ASGITransport
@@ -21,6 +23,8 @@ async def test_accounts_list():
 @pytest.mark.asyncio
 async def test_accounts_create_endpoint():
 
+    unique_name = f"TestAccount_{uuid.uuid4().hex[:8]}"
+
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test",
@@ -29,7 +33,7 @@ async def test_accounts_create_endpoint():
         response = await client.post(
             "/api/accounts/",
             json={
-                "name": "Test Account",
+                "name": unique_name,
                 "balance": 100.0,
             },
         )
