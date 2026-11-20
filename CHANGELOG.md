@@ -2249,105 +2249,101 @@ Notes
 - Модуль Inventory повністю покритий базовим набором тестів.
 - Тестування виконувалось у Docker-контейнері rio_backend1.
 #2026-11-19
+
 Added
-- Created dedicated purchases test structure:
+- Створено окрему структуру тестів для модуля Purchases:
   - tests/purchases/test_purchases_api.py
   - tests/purchases/test_purchases_auth.py
   - tests/purchases/test_purchases_crud.py
   - tests/purchases/test_purchases_frontend.py
   - tests/purchases/test_purchases_validation.py
 
-- Moved sales page validation tests to:
+- Перенесено тести валідації сторінки Sales до файлу:
   - tests/sales/test_sales_page_validation.py
 
-- Added tests volume mounting into backend containers:
+- Додано монтування каталогу тестів у бекенд-контейнери:
   - ./tests:/app/tests
 
-Changed
-- Refactored tests directory structure toward module-based layout.
-- Updated Accounts API create test to use unique account names instead of fixed values.
-
-Fixed
-- Fixed backend containers using stale test files caused by missing tests volume mount.
-- Fixed synchronization of local tests with rio_backend1 and rio_backend2 containers.
-- Fixed failing Accounts API create test caused by duplicate account names in PostgreSQL.
-
-Notes
-- Current test status: 85 passed, 1 failed.
-- Remaining failure: tests/test_users.py::test_user_create
-- Cause: duplicate username "testuser" already exists in database.
-- Next step: refactor user creation test to use unique username and email values (UUID approach).
-Added
-- Created Users test structure:
+- Створено окрему структуру тестів для модуля Users:
   - tests/users/test_users_api.py
   - tests/users/test_users_auth.py
   - tests/users/test_users_crud.py
   - tests/users/test_users_frontend.py
   - tests/users/test_users_validation.py
 
-Changed
-- Moved Users API tests to dedicated users module structure.
-- Updated docker-compose backend volumes to mount tests directory into containers.
+- Додано тести Frontend, Auth, CRUD та Validation для модуля Users.
 
-Fixed
-- Fixed outdated test files inside backend containers.
-- Fixed synchronization between local tests directory and Docker containers.
-- Fixed Accounts API create test using unique generated account names.
-
-Notes
-- Test run result: 85 passed, 1 failed.
-- Remaining failing test: tests/users/test_users_api.py::test_user_create
-- Cause: duplicate username already exists in PostgreSQL database.
-- Users API test requires unique username/email generation similar to Accounts tests.
-Added
-- Created Users test structure:
-  - tests/users/test_users_api.py
-  - tests/users/test_users_auth.py
-  - tests/users/test_users_crud.py
-  - tests/users/test_users_frontend.py
-  - tests/users/test_users_validation.py
-
-- Added Users frontend service tests.
-- Added Users schema validation tests.
-- Added Users authentication tests.
-- Added Users model CRUD tests.
-
-Changed
-- Moved Users API tests from root tests directory to dedicated users module.
-- Updated Users API create test to generate unique username and email values.
-- Updated docker-compose backend services to mount ./tests into /app/tests.
-
-Fixed
-- Fixed stale tests issue inside backend containers.
-- Fixed synchronization of local tests with Docker containers.
-- Fixed duplicate username collisions in Users API tests.
-- Fixed duplicate account name collisions in Accounts API tests.
-
-Notes
-- Full test suite executed successfully.
-- Result: 96 passed, 0 failed.
-- Accounts, Finance, Inventory, Sales, Purchases and Users modules migrated to new test architecture.
-- Backend containers now use live test files from local project directory.
-Added
-- Created Journal test structure:
+- Створено окрему структуру тестів для модуля Journal:
   - tests/journal/test_journal_api.py
   - tests/journal/test_journal_auth.py
   - tests/journal/test_journal_crud.py
   - tests/journal/test_journal_frontend.py
   - tests/journal/test_journal_validation.py
 
-- Added Journal frontend service tests.
-- Added Journal schema validation tests.
-- Added Journal authentication tests.
-- Added Journal model CRUD tests.
+- Додано тести Frontend, Auth, CRUD та Validation для модуля Journal.
+
+- Створено окрему структуру тестів для модуля Legal:
+  - tests/legal/test_legal_api.py
+  - tests/legal/test_legal_auth.py
+  - tests/legal/test_legal_crud.py
+  - tests/legal/test_legal_frontend.py
+  - tests/legal/test_legal_validation.py
+
+- Додано тести Frontend, Auth, CRUD та Validation для модуля Legal.
 
 Changed
-- Moved Journal API tests from root tests directory to dedicated journal module structure.
+- Повністю перероблено структуру каталогу tests на модульну архітектуру.
+- Перенесено API-тести Users до окремого каталогу tests/users.
+- Перенесено API-тести Journal до окремого каталогу tests/journal.
+- Перенесено API-тести Legal до окремого каталогу tests/legal.
+- Оновлено тест створення рахунку Accounts для використання унікальних назв.
+- Оновлено тест створення користувача Users для використання унікальних username та email через UUID.
+- Уніфіковано структуру тестів для модулів:
+  Accounts, Finance, Inventory, Journal, Legal, Purchases, Sales, Users.
+- Централізовано всі актуальні тести в каталозі tests/.
 
 Fixed
-- Standardized Journal tests according to modular test architecture used by Accounts, Finance, Inventory, Sales, Purchases and Users modules.
+- Виправлено проблему із застарілими тестами всередині контейнерів rio_backend1 та rio_backend2.
+- Виправлено синхронізацію локального каталогу tests із Docker-контейнерами.
+- Виправлено падіння тестів Accounts через дублікати назв рахунків.
+- Виправлено падіння тестів Users через дублікати username та email.
+- Усунуто дублювання тестів між tests/ та backend/tests.
+- Видалено залежність від застарілої структури backend/tests.
+- Видалено застарілі каталоги __pycache__ після міграції тестів.
+- Повністю ліквідовано каталог backend/tests після підтвердження працездатності нової структури.
 
 Notes
-- Journal module test run completed successfully.
-- Result: 14 passed, 0 failed.
-- Journal module fully migrated to new test architecture.
+- Завершено міграцію всієї тестової інфраструктури на нову модульну архітектуру.
+- Папка backend/tests повністю видалена як застаріла.
+- Усі модулі переведені на єдину структуру тестування.
+- Повний прогін тестів завершено успішно.
+- Результат: 116 passed, 0 failed.
+- Тестування виконується виключно через каталог tests/.
+Added
+- Виправлено проблему запуску rio_frontend після аналізу логів Docker.
+- Виявлено неправильні імпорти виду `from frontend_rio.config import ...` у сервісах фронтенду.
+- Автоматично замінено імпорти на `from config import API_URL, API_TOKEN`.
+- Виправлено імпорт у `frontend_rio/ui/sales_page.py`.
+- Переведено сервіси Docker Compose з `restart: always` на `restart: unless-stopped`.
+
+Changed
+- Перебудовано контейнери через `docker compose up -d --build`.
+- Відновлено коректний запуск контейнера `rio_frontend`.
+- Оновлено політику автоперезапуску контейнерів для майбутнього серверного використання.
+
+Fixed
+- Усунуто помилку `ModuleNotFoundError: No module named 'frontend_rio'`.
+- Відновлено роботу фронтенду Rio на адресі `http://localhost:3001`.
+- Підтверджено працездатність Frontend, Backend1, Backend2 та Node сервісів.
+- Підтверджено коректний проброс портів Docker усередині WSL.
+
+Notes
+- Встановлено, що RIO-ERP успішно працює через WSL IP `172.19.131.32`.
+- Встановлено, що доступ через `localhost` працює коректно.
+- Виявлено мережеву проблему між Windows (`192.168.0.158`) та WSL, яка поки не дозволяє відкривати ERP через IP основного ПК.
+- Розпочато підготовку RIO-ERP до роботи як домашнього сервера в локальній мережі.
+Fixed
+- Виправлено падіння контейнера rio_frontend.
+- Виявлено помилку резолвінгу API URL після переходу WSL у mirrored mode.
+- Підтверджено доступність Frontend через http://192.168.0.158:3001.
+- Підтверджено доступність Backend через http://192.168.0.158:7000.
