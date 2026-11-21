@@ -1,7 +1,7 @@
 import rio
 from datetime import datetime
 
-from services.sales import get_sales
+from frontend_rio.services.sales import get_sales
 
 
 def validate_sale_entry(

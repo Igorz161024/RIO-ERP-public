@@ -1,6 +1,6 @@
 import rio
 
-from services.inventory import get_inventory
+from frontend_rio.services.inventory import get_inventory
 
 
 @rio.page(

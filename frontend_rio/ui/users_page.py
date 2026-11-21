@@ -1,6 +1,6 @@
 import rio
 
-from services.users import get_users
+from frontend_rio.services.users import get_users
 
 
 @rio.page(

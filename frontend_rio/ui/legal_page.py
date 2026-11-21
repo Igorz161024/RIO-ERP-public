@@ -1,6 +1,6 @@
 import rio
 
-from services.legal import get_legal
+from frontend_rio.services.legal import get_legal
 
 
 @rio.page(

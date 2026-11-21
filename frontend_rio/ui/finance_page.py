@@ -1,6 +1,6 @@
 import rio
 
-from services.finance import get_finance
+from frontend_rio.services.finance import get_finance
 
 
 @rio.page(

@@ -1,6 +1,6 @@
 import rio
 
-from services.purchases import get_purchases
+from frontend_rio.services.purchases import get_purchases
 
 
 @rio.page(

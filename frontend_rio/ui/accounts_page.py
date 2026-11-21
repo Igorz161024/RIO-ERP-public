@@ -1,6 +1,6 @@
 import rio
 
-from services.accounts import get_accounts
+from frontend_rio.services.accounts import get_accounts
 
 
 @rio.page(

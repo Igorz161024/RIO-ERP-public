@@ -1,6 +1,6 @@
 import rio
 
-from services.journal import get_journal
+from frontend_rio.services.journal import get_journal
 
 
 @rio.page(
